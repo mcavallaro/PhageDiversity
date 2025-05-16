@@ -1,5 +1,6 @@
-# Real dataset:
+# Real datasets and pdf:
 *.csv
+*.pdf
 
 # History files
 .Rhistory
