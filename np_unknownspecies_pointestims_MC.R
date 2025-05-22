@@ -79,7 +79,7 @@ for (n1 in names(samples_1K[c(1,2,3,4)])){
   points(m, new_species_ET[[n1]], col='blue')
   lines(m, new_species_SGT[[n1]], col='orange')
   abline(v=sum(freq_table), lty=2, col='grey')
-  legend('topright', lty=c(1,NA,1), pch=c(NA,1,NA), c('GT','ET', 'SGF'), col=c('green', 'blue', 'orange'))
+  legend('topright', lty=c(1,NA,1), pch=c(NA,1,NA), c('GT','ET', 'SGT'), col=c('green', 'blue', 'orange'))
 }
 
 
