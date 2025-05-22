@@ -13,7 +13,7 @@
 
 source("NP_estimators_MC.R")
 #' Load packages
-# library(variantprobs) #estimators
+library(variantprobs) #estimators
 # library(readr) #reading in csv
 library(dplyr) #splitting into hosts
 
@@ -36,7 +36,7 @@ lambda <- .8# lambda=m/n
 
 new_species_GT = list()
 new_species_ET = list()
-
+new_species_SGT = list()
 
 for (n1 in names(samples_1K[c(1,2,3,4)])){
   speccounts <- as.vector(unname(table(
@@ -45,23 +45,23 @@ for (n1 in names(samples_1K[c(1,2,3,4)])){
   cat("\n", n1)
   cat(". n of species: ", sum(freq_table))
   cat(". n of isolates: ", c(freq_table %*% as.numeric(names(freq_table))))
-  m = seq(1, sum(freq_table) * 1.3)
-  new_species_GT[[n1]] = good_toulmin(freq_table, m )
-  new_species_ET[[n1]] = efron_thisted(freq_table, m )
+  m = sum(freq_table)
+  M = seq(1, m * 1.3)
+  new_species_GT[[n1]] = good_toulmin(freq_table, M )
+  new_species_ET[[n1]] = efron_thisted(freq_table, M )
+  new_species_SGT[[n1]] = vector(mode = "numeric", length = length(M))
+  for (i in M){
+    new_species_SGT[[n1]][i]=sgt_Delta(counts = speccounts, m=m, t=i/m, adj = F)
+  }
   
   # remove negatives:
   new_species_GT[[n1]]  = ifelse(new_species_GT[[n1]] < 0, 0, new_species_GT[[n1]]  )
   new_species_ET[[n1]]  = ifelse(new_species_ET[[n1]] < 0, 0, new_species_ET[[n1]]  )  
-  # cat(n1,": expect ",
-  #   sgt_Delta(counts = speccounts,
-  #             m=sum(speccounts),
-  #             t=lambda,adj = TRUE),
-  #   "new species in",t*100,
-  # "% more samples\n")  
+  new_species_SGT[[n1]]  = ifelse(new_species_SGT[[n1]] < 0, 0, new_species_ET[[n1]]  )
 }
 
 
-par(mfrow = c(2, 2))    
+par(mfrow = c(2, 2))
 for (n1 in names(samples_1K[c(1,2,3,4)])){
   speccounts <- as.vector(unname(table(
     spec_byhost_l[[n1]])))
@@ -76,9 +76,10 @@ for (n1 in names(samples_1K[c(1,2,3,4)])){
        xlab='# of future samples',
        main=n1)
   lines(m, new_species_GT[[n1]], col='green')
-  lines(m, new_species_ET[[n1]], col='blue')
+  points(m, new_species_ET[[n1]], col='blue')
+  lines(m, new_species_SGT[[n1]], col='orange')
   abline(v=sum(freq_table), lty=2, col='grey')
-  legend('topright', lty=1, c('GT','ET'), col=c('green', 'blue'))
+  legend('topright', lty=c(1,NA,1), pch=c(NA,1,NA), c('GT','ET', 'SGF'), col=c('green', 'blue', 'orange'))
 }
 
 

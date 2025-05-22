@@ -11,7 +11,7 @@ good_toulmin <- function(freq_table, m) {
     ff = as.numeric(f)
     unseen <- unseen - ((-t)^ff) * freq_table[f]
   }
-  return(unseen) # Return real part in case of complex result
+  return(unseen)
 }
 
 # Efron-Thisted Estimator
