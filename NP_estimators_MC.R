@@ -26,9 +26,11 @@ efron_thisted <- function(freq_table, m, max_terms = 10) {
     ff = as.numeric(f)
     S = 1 - pbinom(ff, max_terms, 1/(1+t))
     tmp = ((-t)^(ff+1)) * S
+    # tmp = ((-t)^(ff+1)) * S
     idx = t > max_terms
     tmp[idx] = 0
-    unseen <- unseen + freq_table[f] * tmp
+    # unseen <- unseen + freq_table[f] * tmp
+    unseen <- unseen - freq_table[f] * tmp
   }  
   return(unseen)
 }
