@@ -5,7 +5,7 @@ good_toulmin <- function(freq_table, m) {
   # m: # of future samples (=t*n, t, extrapolation factor (e.g., t = 1 for doubling the sample size)
   # n: # of past samples
   unseen <- rep(0, length(m))
-  n = sum(freq_table)
+  n = c(freq_table %*% as.numeric(names(freq_table)))
   t = m / n
   for (f in names(freq_table)) {
     ff = as.numeric(f)
@@ -20,13 +20,13 @@ efron_thisted <- function(freq_table, m, max_terms = 10) {
   # m: # of future samples (=t*n, t, extrapolation factor (e.g., t = 1 for doubling the sample size)
   # n: # of past samples
   unseen <- rep(0, length(m))
-  n = sum(freq_table)
+  n = c(freq_table %*% as.numeric(names(freq_table)))
   t = m / n
   for (f in names(freq_table)) {
     ff = as.numeric(f)
     S = 1 - pbinom(ff, max_terms, 1/(1+t))
-    tmp = ((-t)^(ff+1)) * S
-    # tmp = ((-t)^(ff+1)) * S
+    #tmp = ((-t)^(ff+1)) * S
+    tmp = ((-t)^(ff)) * S
     idx = t > max_terms
     tmp[idx] = 0
     # unseen <- unseen + freq_table[f] * tmp

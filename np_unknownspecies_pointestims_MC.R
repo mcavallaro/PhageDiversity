@@ -45,7 +45,7 @@ for (n1 in names(samples_1K[c(1,2,3,4)])){
   cat("\n", n1)
   cat(". n of species: ", sum(freq_table))
   cat(". n of isolates: ", c(freq_table %*% as.numeric(names(freq_table))))
-  m = sum(freq_table)
+  m =  c(freq_table %*% as.numeric(names(freq_table)))
   M = seq(1, m * 1.3)
   new_species_GT[[n1]] = good_toulmin(freq_table, M )
   new_species_ET[[n1]] = efron_thisted(freq_table, M )
@@ -69,17 +69,18 @@ for (n1 in names(samples_1K[c(1,2,3,4)])){
   cat("\n", n1)
   cat(" n of species: ", sum(freq_table))
   cat(". n of isolates: ", c(freq_table %*% as.numeric(names(freq_table))))
-  m = seq(1, sum(freq_table) * 1.3)
+  m = seq(1,  c(freq_table %*% as.numeric(names(freq_table))) * 1.3)
   
-  plot(range(m), c(0, 150), type='n',
+  plot(range(m), c(0, 250), type='n',
        ylab='Estimated unseen species',
        xlab='# of future samples',
        main=n1)
   lines(m, new_species_GT[[n1]], col='green')
   points(m, new_species_ET[[n1]], col='blue')
   lines(m, new_species_SGT[[n1]], col='orange')
-  abline(v=sum(freq_table), lty=2, col='grey')
-  legend('topright', lty=c(1,NA,1), pch=c(NA,1,NA), c('GT','ET', 'SGT'), col=c('green', 'blue', 'orange'))
+  
+  abline(v= c(freq_table %*% as.numeric(names(freq_table))), lty=2, col='grey')
+  legend('topleft', lty=c(1,NA,1), pch=c(NA,1,NA), c('GT','ET', 'sgt_Delta'), col=c('green', 'blue', 'orange'))
 }
 
 
