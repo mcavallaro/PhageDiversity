@@ -81,4 +81,7 @@ bounds_gte_meqn <- c(-sum(freq_table),sum(freq_table))
 test2 >= bounds_gte_meqn[1]
 test2 <= bounds_gte_meqn[2]
 test2
+#' We get the same estimator if we force t=1 in good_toulmin()
+good_toulmin(freq_table,m = sum(freq_table))
+test2 
 
