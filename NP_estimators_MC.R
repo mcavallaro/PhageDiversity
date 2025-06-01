@@ -35,3 +35,19 @@ efron_thisted <- function(freq_table, m, max_terms = 10) {
   return(unseen)
 }
 
+rising_factorial<-function(a, u){
+  prod(a + 0:(u-1))
+}
+
+balocchi_likelihood<-function(M, alpha, theta){
+  # from page 21 of ?Balocchi's paper
+  # alpha in 0,1
+  # theta > -alpha
+  n = length(M)
+  Sum = sum(M)
+  Factor1 = factorial(n) * rising_factorial(theta / alpha, Sum) / rising_factorial(theta, n)
+  for (i in 1:n){
+    Factor1 = Factor1 * (rising_factorial(alpha * (1 - alpha), i-1) / factorial(i))^M[i] / factorial(M[i])
+  }
+  return(Factor1)
+}
