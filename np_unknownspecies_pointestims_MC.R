@@ -32,11 +32,28 @@ nosamples_host <- sapply(spec_byhost_l,
                          nrow)
 samples_1K <- which(nosamples_host>999)
 
+
 lambda <- .8# lambda=m/n
 
 new_species_GT = list()
 new_species_ET = list()
 new_species_SGT = list()
+
+boot_freqtable<-function(species, n_bt_samples=2){
+  # get freq table from speccounts (with bootstrap)
+  species = unlist(species)
+  len = length(species)
+  speccounts <- as.vector(unname(table(species)))
+  freq = c(table(speccounts))
+  tmp = list()
+  for (i in 1:n_bt_samples){
+    bootstrapped_species = sample(species, len, replace=T)
+    bootstrapped_speccounts = as.vector(unname(table(bootstrapped_species)))
+    bootstrapped_freq = c(table(bootstrapped_speccounts))
+    tmp[[i]] = bootstrapped_freq
+  }
+  list(freq_table=freq, bootstrapped_freq_table=tmp)
+}
 
 for (n1 in names(samples_1K[c(1,2,3,4)])){
   speccounts <- as.vector(unname(table(
