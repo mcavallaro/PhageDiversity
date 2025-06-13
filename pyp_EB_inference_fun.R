@@ -45,6 +45,7 @@ balocchi_likelihood2 <-function(M, alpha, theta, N){
 
 
 log_balocchi_likelihood <-function(M, alpha, theta, N=NULL){
+  if (!(alpha <=1 & alpha >=0 & theta > -alpha)){Term1 <- -Inf} else {
   # from page 21 of ?Balocchi's paper
   # alpha in 0,1
   # theta > -alpha
@@ -61,7 +62,7 @@ log_balocchi_likelihood <-function(M, alpha, theta, N=NULL){
     # Term1 = Term1 +  (alpha * rising_factorial2(1 - alpha, i-1) / factorial(i))^M[i] / factorial(M[i])
     
     Term1 = Term1 + ( M[i] * (log(alpha) + log_rising_factorial(1 - alpha, i-1) - lfactorial(i) ) - lfactorial(M[i]) )
-  }
+  }}
   return(Term1)
 }
 
@@ -102,8 +103,9 @@ uhat_pyp <- function(alpha, theta, m, M){
 
 
 PYP_MLE<-function(M){
+  #optim finds minima, so we negate the fct.
   fn <- function(par){
-    log_balocchi_likelihood(M, par[1], par[2])
+    -log_balocchi_likelihood(M, par[1], par[2])
   }
   res <- optim(par = c(0.5, 1), fn = fn)
   # alpha <- res$par[1]
