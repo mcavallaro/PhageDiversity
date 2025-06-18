@@ -1,7 +1,7 @@
 #Example usage
 # Suppose we have observed frequencies: 118 species seen 1 time, 74 species seen 2 times, etc.
 freq_table <- c(118,	74,	44,	24,	29,	22,	20,	19,	20,	15,	12,	14,	6, 1, 6)
-# Corbet -FIsher butterfly data
+# Corbet-Fisher butterfly data
 names(freq_table) = as.character(1:length(freq_table))
 
 
