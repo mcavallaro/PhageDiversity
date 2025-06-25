@@ -76,38 +76,66 @@ neglog_balocchi_likelihood <-function(M, alpha, theta, N=NULL){
 #'   return(M)
 #' }
 
+#' We will use the Empirical Bayes procedure
+#' Step 1: ML estimate of PYP parameters, 
+#' optimisation similar to 
+#' https://github.com/cecilia-balocchi/OrderedSSP
+#' but using optimx
+#' 
+
+
 library(optimx)
-PYP_MLE<-function(M){
+#' arguments: M is M_{i,r}, start_...
+#' are the start values for optimisation
+#'  and outp is a Boolean that is TRUE
+#'  if output should be just the optimised
+#'  parameters and FALSE if it should be the 
+#'  standard optim output
+PYP_MLE<-function(M,
+                  start_alpha=0.5,
+                  start_theta=1){
   #optim finds minima, so we negate the fct.
   fn <- function(par){
     neglog_balocchi_likelihood(M, par[1], par[2])
   }
   # res <- optim(par = c(0.5, 1), fn = fn)
-  res<-optimr(c(0.5, 1), fn, method = "Nelder-Mead") #, lower = c(0, -1), upper=c(1, 1000))
+  res <- optimr(c(start_alpha,
+                start_theta), 
+                fn, 
+                method = "Nelder-Mead") #, lower = c(0, -1), upper=c(1, 1000))
   print(res)
   ret = res$par
   names(ret) = c('alpha', 'theta')
   return(ret)
 }
 
-#' We will use the Empirical Bayes procedure
-#' Step 1: ML estimate of PYP parameters, optimisation as in 
-#' https://github.com/cecilia-balocchi/OrderedSSP
-#'
-#' TO DO
+
  
 #' Step 2: Use Eq. 19, 20 from Balocchi paper 1 to estimate 
 #' unseen species properties from the empirical parameter estimate
 #' for now, estimate mean number of new species expected under
 #' best estimate of alpha, theta
 #' M is the vector M1,n,...Mn,n of species with specific count 1,...,n
+#' we use an internal log in this version
 uhat_pyp <- function(alpha, theta, M, m){
   no_species <- sum(M)
-  n <- sum(seq(along=m)*M) #how many indiv's sampled? <------------ TYPO?? this is always equal to M
-  uhat <- no_species + theta/alpha
-  uhat <- uhat * (rising_factorial(alpha + theta + n,m)/rising_factorial(theta + n,m) - 1)
- return(uhat)
+  n <- sum(seq(along=M)*M) #how many indiv's sampled?
+  term1 <- no_species + theta/alpha
+  term2 <- log_rising_factorial(alpha + theta + n,m)
+  term2 <- term2 - log_rising_factorial(theta + n,m)
+  uhat <- term1*(exp(term2)-1)
+  return(uhat)
 }
+
+#' Original uhat
+#uhat_pyp_nolog <- function(alpha, theta, M, m){
+#  no_species <- sum(M)
+#  n <- sum(seq(along=m)*M) #how many indiv's sampled?
+#  uhat <- no_species + theta/alpha
+#  uhat <- uhat * (rising_factorial(alpha + theta + n,m)/rising_factorial(theta + n,m) - 1)
+#  return(uhat)
+#}
+
 
 BalocchiPYPWrapper<-function(M, m){
   par<-PYP_MLE(M)

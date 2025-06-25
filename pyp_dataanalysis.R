@@ -1,0 +1,68 @@
+library(readr) #reading in csv
+library(dplyr) #splitting into hosts
+
+#' Read in species count data,
+#' extract list with species count per host
+#' species
+fulltable <- read_csv("data/phagesspeciescounts_perhostspec_Sept2024.csv")
+spec_byhost <- fulltable |> select(Host,
+                                   `Phage Species`) |> 
+  nest_by(Host)
+spec_byhost_l <- as.list(spec_byhost$data)
+names(spec_byhost_l) <- spec_byhost$Host
+#' count number of samples per host species
+#' which ones are > 1000?
+nosamples_host <- sapply(spec_byhost_l,
+                         nrow)
+samples_1K <- which(nosamples_host>999)
+lambda <- c(.5,.8,1,1.5) #lambda=m/n
+#' Load fcts
+source("pyp_EB_inference_fun.R")
+source("utils.R")
+#' Perform alpha,theta ML optim for PYP
+mlparam_pyp <- vector("list",length(samples_1K))
+names(mlparam_pyp)<- names(samples_1K)
+#' double loop: compute MLE over species
+#' and three optim starts
+
+#' Take 3 starting values for a(lpha) and t(heta)
+startv <- list(c("a"=0.5,"t"=1),
+               c("a"=0.99,"t"=25),
+               c("a"=0.7,"t"=0.01))
+#' currently, issue for t negative (at least for 
+#'   a=0.95,  t=-0.75) 
+for (n1 in names(samples_1K)){
+mlparam_pyp[[n1]] <- vector("list",3)
+names(mlparam_pyp[[n1]]) <- sapply(startv,
+      function(v){paste0(v,collapse=",")}) 
+for (i in 1:3){
+mlparam_pyp[[n1]][[i]] <- PYP_MLE(extractM(
+  table(spec_byhost_l[[n1]])),
+  start_alpha = startv[[i]]["a"],
+  start_theta = startv[[i]]["t"])
+}
+#mlparam_pyp[[n1]] <- PYP_MLE(extractM(table(spec_byhost_l[[n1]])))
+
+}
+#' run expected u_nm under first params
+#' 
+#' PYP estimates 
+add_samples <- 500
+res1 <- sapply(1:7,function(i){
+uhat_pyp(alpha = mlparam_pyp[[i]][[1]]["alpha"],
+         theta = mlparam_pyp[[i]][[1]]["theta"],
+         m = add_samples,
+         M = extractM(table(spec_byhost_l[[
+           names(samples_1K)[i]]])))}
+)
+names(res1) <- names(samples_1K)
+#' GT estimates
+source("NP_estimators_MC.R")
+res2 <- sapply(1:7,
+               function(i){good_toulmin(
+                 freq_table = getFrequencyTable(getSpeciesCount(spec_byhost_l[[
+                   names(samples_1K)[i]]])),
+                 m = add_samples)})
+names(res2) <- names(samples_1K)
+res_full <- rbind("pyp"=res1,"GT"=res2)
+print(res_full)
