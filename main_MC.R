@@ -13,6 +13,8 @@ source("pyp_EB_inference_fun.R")
 # import functions for bootstrap and other utils
 source("utils.R")
 
+source("2025data.R")
+
 # import data
 fulltable <- read.csv("data/phagesspeciescounts_perhostspec_Sept2024.csv", check.names=F)
 spec_byhost <- fulltable |> select(Host, `Phage Species`) |> nest_by(Host)
