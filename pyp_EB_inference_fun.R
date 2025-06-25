@@ -4,8 +4,6 @@
 #> par = PYP_MLE(M)
 #> uhat_pyp(par[1], par[2], M, 10)
 
-
-
 #' Just for balocchi_likelihood and rising_factorial
 #source("NP_estimators_MC.R")
 
@@ -66,17 +64,17 @@ neglog_balocchi_likelihood <-function(M, alpha, theta, N=NULL){
   return(-Term)
 }
 
-
-#' Function to extract Mr,n from species counts
-#' argument: species counts  
-extractM <- function(counts){
-  #M = spec_byhost_l[['Escherichia']] %>% unlist() %>% table  %>% extractM()
-  n <- sum(counts) #No of sampled indiv
-  M <-rep(0,n) #at least count 0 in each class
-  #for each species, +1 the right class of M
-  for (i in seq(along=counts)) {M[counts[i]] <- M[counts[i]]+1} 
-  return(M)
-}
+# I moved this function in  utils.R for convenience
+#' #' Function to extract Mr,n from species counts
+#' #' argument: species counts  
+#' extractM <- function(counts){
+#'   #M = spec_byhost_l[['Escherichia']] %>% unlist() %>% table  %>% extractM()
+#'   n <- sum(counts) #No of sampled indiv
+#'   M <-rep(0,n) #at least count 0 in each class
+#'   #for each species, +1 the right class of M
+#'   for (i in seq(along=counts)) {M[counts[i]] <- M[counts[i]]+1} 
+#'   return(M)
+#' }
 
 library(optimx)
 PYP_MLE<-function(M){
@@ -105,8 +103,14 @@ PYP_MLE<-function(M){
 #' M is the vector M1,n,...Mn,n of species with specific count 1,...,n
 uhat_pyp <- function(alpha, theta, M, m){
   no_species <- sum(M)
-  n <- sum(seq(along=m)*M) #how many indiv's sampled?
+  n <- sum(seq(along=m)*M) #how many indiv's sampled? <------------ TYPO?? this is always equal to M
   uhat <- no_species + theta/alpha
   uhat <- uhat * (rising_factorial(alpha + theta + n,m)/rising_factorial(theta + n,m) - 1)
  return(uhat)
 }
+
+BalocchiPYPWrapper<-function(M, m){
+  par<-PYP_MLE(M)
+  uhat_pyp(par[1], par[2], M, m)
+}
+
