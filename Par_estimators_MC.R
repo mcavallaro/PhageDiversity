@@ -50,7 +50,8 @@ PoissonGamma_MLE<-function(freq_table){
   fn <- function(par){
     negloglikelihood(par[1], par[2], freq_table)
   }
-  res<-optimr(c(1,2), fn, method = "Nelder-Mead")
+  initial_guess<-as.numeric(sample.int(5, 2))
+  res<-optimr(initial_guess, fn, method = "Nelder-Mead")
   print(res)
   ret = res$par
   names(ret) = c('alpha', 'beta')
@@ -68,4 +69,9 @@ FisherPoissonGamma<-function(alpha, beta, freq_table, m){
   }else{
     return(-eta1 * ((1+ gamma * t) ^ (-alpha) -  1) / (gamma * alpha))
   }
+}
+
+FisherPoissonGammaWrapper<-function(freq_table, m){
+  par<-PoissonGamma_MLE(freq_table)
+  FisherPoissonGamma(par[1], par[2], freq_table, m)
 }

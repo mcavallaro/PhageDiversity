@@ -11,6 +11,7 @@ good_toulmin <- function(freq_table, m) {
     ff = as.numeric(f)
     unseen <- unseen - ((-t)^ff) * freq_table[f]
   }
+  unseen = ifelse(unseen < 0, 0, unseen)
   return(unseen)
 }
 
@@ -32,7 +33,11 @@ efron_thisted <- function(freq_table, m, max_terms = 10) {
     # unseen <- unseen + freq_table[f] * tmp
     unseen <- unseen - freq_table[f] * tmp
   }  
+  # remove negatives:
+  unseen = ifelse(unseen < 0, 0, unseen)
   return(unseen)
+  
+  
 }
 
 # rising_factorial<-function(a, u){
