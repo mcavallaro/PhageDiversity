@@ -78,10 +78,9 @@ res3 <- sapply(1:6,
                  m = Summary$new_samples[Summary$host==names(samples_1K)[i]])})
 names(res3) <- names(samples_1K)
 #' lambda=m/n (fraction of new sample relative to old sample)
-res_full <- rbind("pyp"=res1,"GT"=res2,
+res_full <- rbind("pyp"=res1,"GT"=res2,"ET"=res3,
                   "obs"=Summary$new_species,
                   "lambda"=Summary |> mutate(
                     lambda=number.of.samples.2025/number.of.samples.2024-1) |> 
-                    select(lambda) |> as.vector() |> unlist(),
-                  "ET"=res3)
+                    select(lambda) |> as.vector() |> unlist())
 print(res_full)
