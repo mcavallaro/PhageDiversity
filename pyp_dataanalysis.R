@@ -1,6 +1,7 @@
 library(readr) #reading in csv
 library(dplyr) #splitting into hosts
 
+#' Sept 2004 data set
 #' Read in species count data,
 #' extract list with species count per host
 #' species
@@ -15,7 +16,9 @@ names(spec_byhost_l) <- spec_byhost$Host
 nosamples_host <- sapply(spec_byhost_l,
                          nrow)
 samples_1K <- which(nosamples_host>999)
-lambda <- c(.5,.8,1,1.5) #lambda=m/n
+#' remove unknown entry
+samples_1K <- samples_1K[-6]
+#lambda <- c(.5,.8,1,1.5) #lambda=m/n
 #' Load fcts
 source("pyp_EB_inference_fun.R")
 source("utils.R")
@@ -46,23 +49,39 @@ mlparam_pyp[[n1]][[i]] <- PYP_MLE(extractM(
 }
 #' run expected u_nm under first params
 #' 
-#' PYP estimates 
-add_samples <- 500
-res1 <- sapply(1:7,function(i){
+#' PYP estimates for the exact number of additional phages 
+#' sampled on each host 
+#' 
+source("2025data.R")
+#add_samples <- 500
+res1 <- sapply(1:6,function(i){
 uhat_pyp(alpha = mlparam_pyp[[i]][[1]]["alpha"],
          theta = mlparam_pyp[[i]][[1]]["theta"],
-         m = add_samples,
+         m = Summary$new_samples[Summary$host==names(samples_1K)[i]],
          M = extractM(table(spec_byhost_l[[
            names(samples_1K)[i]]])))}
 )
 names(res1) <- names(samples_1K)
 #' GT estimates
 source("NP_estimators_MC.R")
-res2 <- sapply(1:7,
+res2 <- sapply(1:6,
                function(i){good_toulmin(
                  freq_table = getFrequencyTable(getSpeciesCount(spec_byhost_l[[
                    names(samples_1K)[i]]])),
-                 m = add_samples)})
+                 m = Summary$new_samples[Summary$host==names(samples_1K)[i]])})
 names(res2) <- names(samples_1K)
-res_full <- rbind("pyp"=res1,"GT"=res2)
+#' Efron-Thisted
+res3 <- sapply(1:6,
+               function(i){efron_thisted(
+                 freq_table = getFrequencyTable(getSpeciesCount(spec_byhost_l[[
+                   names(samples_1K)[i]]])),
+                 m = Summary$new_samples[Summary$host==names(samples_1K)[i]])})
+names(res3) <- names(samples_1K)
+#' lambda=m/n (fraction of new sample relative to old sample)
+res_full <- rbind("pyp"=res1,"GT"=res2,
+                  "obs"=Summary$new_species,
+                  "lambda"=Summary |> mutate(
+                    lambda=number.of.samples.2025/number.of.samples.2024-1) |> 
+                    select(lambda) |> as.vector() |> unlist(),
+                  "ET"=res3)
 print(res_full)

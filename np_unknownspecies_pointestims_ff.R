@@ -39,7 +39,7 @@ cat(n1,": expect ",
     sgt_Delta(counts = speccounts,
               m=sum(speccounts),
               t=lambda,adj = TRUE),
-    "new species in",t*100,
+    "new species in",lambda*100,
   "% more samples\n")  
 }
 # MTB has negative estimate for large t (e.g., =1),
