@@ -139,6 +139,10 @@ uhat_pyp <- function(alpha, theta, M, m){
 
 BalocchiPYPWrapper<-function(M, m){
   par<-PYP_MLE(M)
-  uhat_pyp(par[1], par[2], M, m)
+  ret = c()
+  for (i in m){
+    ret = c(ret, uhat_pyp(par[1], par[2], M, i) )
+  }
+  return(ret)
 }
 
