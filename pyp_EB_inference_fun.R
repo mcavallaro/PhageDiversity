@@ -91,9 +91,12 @@ library(optimx)
 #'  if output should be just the optimised
 #'  parameters and FALSE if it should be the 
 #'  standard optim output
+#'  We use Boolean debug whether we should print out
+#'  the ML estimate during computation
 PYP_MLE<-function(M,
                   start_alpha=0.5,
-                  start_theta=1){
+                  start_theta=1,
+                  debug=FALSE){
   #optim finds minima, so we negate the fct.
   fn <- function(par){
     neglog_balocchi_likelihood(M, par[1], par[2])
@@ -103,7 +106,7 @@ PYP_MLE<-function(M,
                 start_theta), 
                 fn, 
                 method = "Nelder-Mead") #, lower = c(0, -1), upper=c(1, 1000))
-  print(res)
+  if (debug){print(res)}
   ret = res$par
   names(ret) = c('alpha', 'theta')
   return(ret)
