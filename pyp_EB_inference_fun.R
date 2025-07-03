@@ -58,6 +58,13 @@ neglog_balocchi_likelihood <-function(M, alpha, theta, N=NULL){
   if(is.null(N)){
     N = n
   }
+  
+  
+  if (alpha == 0){
+  Term <- -10^+308#to do: code Dirichlet formula,
+  #resp. original Pitman formula which works for alpha=0
+  return(-Term)  
+  } else {
   # Factor1 = factorial(n) * rising_factorial2(theta / alpha, Sum) / rising_factorial2(theta, n)
   #Below, compared to the formula in Balocchi, we extract the first entry of both 
   #of the rising factorials which results in a ratio \frac{\theta/\alpha}{\theta}=1/alpha,
@@ -69,34 +76,9 @@ neglog_balocchi_likelihood <-function(M, alpha, theta, N=NULL){
   for (i in 1:N){
     # Term1 = Term1 +  (alpha * rising_factorial2(1 - alpha, i-1) / factorial(i))^M[i] / factorial(M[i])
     Term = Term + ( M[i] * (log(alpha) + log_rising_factorial(1 - alpha, i-1) - lfactorial(i) ) - lfactorial(M[i]) )
-  }}
-  neglog_balocchi_likelihood <-function(M, alpha, theta, N=NULL){
-  if (!(alpha <=1 & alpha >=0 & theta > -alpha)){return(10^+308)} else {
-  # from page 21 of ?Balocchi's paper
-  # alpha in 0,1
-  # theta > -alpha
-  # usage log_balocchi_likelihood(M, 0.5, 1, 20) %>% exp()
-  n = length(M)
-  Sum = sum(M)
-  if(is.null(N)){
-    N = n
   }
-  if (alpha == 0){
-  Term <- -10^+308#to do: code Dirichlet formula,
-  #resp. original Pitman formula which works for alpha=0
-  return(-Term)  
-  } else {
-  # Factor1 = factorial(n) * rising_factorial2(theta / alpha, Sum) / rising_factorial2(theta, n)
-  Term = log_rising_factorial(theta / alpha, Sum) - log_rising_factorial(theta, n) # Factorial not needed for MLE
-  # the second factor differs from MC's version  
-  for (i in 1:N){
-    # Term1 = Term1 +  (alpha * rising_factorial2(1 - alpha, i-1) / factorial(i))^M[i] / factorial(M[i])
-    Term = Term + ( M[i] * (log(alpha) + log_rising_factorial(1 - alpha, i-1) - lfactorial(i) ) - lfactorial(M[i]) )
-  }}
   return(-Term)
-}
-  return(-Term)
-}
+}}}
 
 # I moved this function in  utils.R for convenience
 #' #' Function to extract Mr,n from species counts
