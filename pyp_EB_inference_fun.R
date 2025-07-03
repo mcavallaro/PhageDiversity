@@ -42,7 +42,11 @@ balocchi_likelihood <-function(M, alpha, theta, N){
   return(Factor1)
 }
 
-
+#' for the log likelihood, we need to adjust one factor to not have
+#' negative arguments in the loglikelihoods
+#' We also need to hard-code the case 
+#' alpha=0, where PYP simplifies to 
+#' sampling from Dirichlet(theta)
 neglog_balocchi_likelihood <-function(M, alpha, theta, N=NULL){
   if (!(alpha <=1 & alpha >=0 & theta > -alpha)){return(10^+308)} else {
   # from page 21 of ?Balocchi's paper
@@ -55,12 +59,42 @@ neglog_balocchi_likelihood <-function(M, alpha, theta, N=NULL){
     N = n
   }
   # Factor1 = factorial(n) * rising_factorial2(theta / alpha, Sum) / rising_factorial2(theta, n)
+  #Below, compared to the formula in Balocchi, we extract the first entry of both 
+  #of the rising factorials which results in a ratio \frac{\theta/\alpha}{\theta}=1/alpha,
+  #thus contributing as -log(alpha) to the log-ed ratio of rising factorials
+  #we add this manually and shift the factorials by 1
+  Term <- -log(alpha) 
+  Term <- Term + log_rising_factorial(theta / alpha + 1, Sum-1) - log_rising_factorial(theta+1, n-1) # Factorial not needed for MLE
+  # the second factor differs from MC's version  
+  for (i in 1:N){
+    # Term1 = Term1 +  (alpha * rising_factorial2(1 - alpha, i-1) / factorial(i))^M[i] / factorial(M[i])
+    Term = Term + ( M[i] * (log(alpha) + log_rising_factorial(1 - alpha, i-1) - lfactorial(i) ) - lfactorial(M[i]) )
+  }}
+  neglog_balocchi_likelihood <-function(M, alpha, theta, N=NULL){
+  if (!(alpha <=1 & alpha >=0 & theta > -alpha)){return(10^+308)} else {
+  # from page 21 of ?Balocchi's paper
+  # alpha in 0,1
+  # theta > -alpha
+  # usage log_balocchi_likelihood(M, 0.5, 1, 20) %>% exp()
+  n = length(M)
+  Sum = sum(M)
+  if(is.null(N)){
+    N = n
+  }
+  if (alpha == 0){
+  Term <- -10^+308#to do: code Dirichlet formula,
+  #resp. original Pitman formula which works for alpha=0
+  return(-Term)  
+  } else {
+  # Factor1 = factorial(n) * rising_factorial2(theta / alpha, Sum) / rising_factorial2(theta, n)
   Term = log_rising_factorial(theta / alpha, Sum) - log_rising_factorial(theta, n) # Factorial not needed for MLE
   # the second factor differs from MC's version  
   for (i in 1:N){
     # Term1 = Term1 +  (alpha * rising_factorial2(1 - alpha, i-1) / factorial(i))^M[i] / factorial(M[i])
     Term = Term + ( M[i] * (log(alpha) + log_rising_factorial(1 - alpha, i-1) - lfactorial(i) ) - lfactorial(M[i]) )
   }}
+  return(-Term)
+}
   return(-Term)
 }
 
