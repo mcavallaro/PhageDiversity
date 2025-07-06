@@ -20,12 +20,12 @@ logp <- function(k, alpha, beta) {
 #' @return Numeric. The negative log-likelihood value.
 negloglikelihood <- function(alpha, beta, f) {
   if ((alpha < 0) | (beta < 0)){return(10^+308)} else {
-  logL <- 0
-  logp0 <- log1p(- (beta / (beta + 1)) ^ alpha)
-  for (k in seq_along(f)) {
-    logL <- logL + f[k] * (logp(k, alpha, beta) - logp0)
-  }
-  return(-logL)
+    logL <- 0
+    logp0 <- log1p(- (beta / (beta + 1)) ^ alpha)
+    for (k in seq_along(f)) {
+      logL <- logL + f[k] * (logp(k, alpha, beta) - logp0)
+    }
+    return(-logL)
   }
 }
 
@@ -45,14 +45,15 @@ negloglikelihood <- function(alpha, beta, f) {
 # }
 
 library(optimx)
-PoissonGamma_MLE<-function(freq_table){
+PoissonGamma_MLE<-function(freq_table,
+                           debug=FALSE){
   #optim finds minima, so we negate the fct.
   fn <- function(par){
     negloglikelihood(par[1], par[2], freq_table)
   }
   initial_guess<-as.numeric(sample.int(5, 2))
   res<-optimr(initial_guess, fn, method = "Nelder-Mead")
-  print(res)
+  if (debug){print(res)}
   ret = res$par
   names(ret) = c('alpha', 'beta')
   return(ret)
