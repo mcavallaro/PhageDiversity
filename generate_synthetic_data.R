@@ -45,12 +45,12 @@ simulatePoissonGamma<-function(shape, rate, n = 1000){
   
   lambdas<-rgamma(shape, rate, n = n)
   # shape is alpha
-  # rate is 1/beta
+  # rate is beta
   # n is number of species
   
   # Draw Poisson samples with these lambdas
   speccounts <-rpois(lambda = lambdas, n = n)
-  cat("The simulated total number of individuals is: ", sum(speccounts))
+  cat("The simulated total number of individuals is: ", sum(speccounts), "\n")
   freq_table<-getFrequencyTable(speccounts)
   return(freq_table)
 }
