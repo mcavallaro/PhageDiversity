@@ -113,7 +113,7 @@ source("Par_estimators_MC.R")
 source("pyp_EB_inference_fun.R")
 # import functions for bootstrap and other utils
 source("utils.R")
-source("2025data.R")
+#source("2025data.R")
 #' import data
 fulltable <- read.csv("data/phagesspeciescounts_perhostspec_Sept2024.csv", check.names=F)
 spec_byhost <- fulltable |> select(Host, `Phage Species`) |> nest_by(Host)
@@ -135,7 +135,7 @@ freq_table<-getFrequencyTable(speccounts)
 M <- extractM(speccounts)
 #' approx. 80% for training
 trainfrac <- 0.8
-trainsize <- round(nosamples_host2025[n1]*trainfrac)
+trainsize <- round(nosamples_host[n1]*trainfrac)
 #'
 valid_res[[i]] <- intval(estim1=good_toulmin,trainsize = trainsize,
                         M = freq_table,type = "freq_table",
@@ -150,6 +150,7 @@ valid_res[[i]] <- cbind(valid_res[[i]],
 colnames(valid_res[[i]])[c(3,4)] <- paste0("PYP.",
                                            colnames(valid_res[[i]])[c(3,4)])
                         }
+save(valid_res,file = "intval_n50_80pctrain_2024.RData")
 #new_species_ET[[n1]] = efron_thisted(freq_table, m)
 #new_species_PoiGamma[[n1]] = FisherPoissonGammaWrapper(freq_table, m)
 #new_species_PYP[[n1]] = BalocchiPYPWrapper(M, m)

@@ -61,8 +61,13 @@ neglog_balocchi_likelihood <-function(M, alpha, theta, N=NULL){
   
   
   if (alpha == 0){
-  Term <- -10^+308#to do: code Dirichlet formula,
-  #resp. original Pitman formula which works for alpha=0
+  #Plug in alpha=0 in equivalent formula for PYP likelihood
+  #EPPF Eq. 3.6, sanity check done, corresponds for theta=1 to
+  #standard Chinese restaurant process EPPF
+  #right term is p(n1,...,nk)=(\theta^k*\prod_i=1^k (ni-1)!)/(theta)_n
+  #in our notation =(theta^Sum*prod_i=1^n ((i-1)!)^Mi)/(theta)_n
+  Term <- log(theta)^Sum + sum(M*lfactorial(0:(n-1)))
+  Term <- Term - log_rising_factorial(theta,n)
   return(-Term)  
   } else {
   # Factor1 = factorial(n) * rising_factorial2(theta / alpha, Sum) / rising_factorial2(theta, n)
