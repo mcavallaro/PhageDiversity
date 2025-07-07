@@ -1,5 +1,3 @@
-library(magrittr)
-
 simulate_P <- function(alpha, theta, n = 1000) {
   #n is number of species
   if (alpha < 0 || alpha >= 1) stop("alpha must be in [0,1)")
@@ -23,7 +21,7 @@ simulate_pitman_yor <- function(alpha, theta, base_distribution, n = 1000) {
   weights <- simulate_P(alpha, theta, n)
   S <- base_distribution(n)  # Sample from base distribution (e.g., atomic or non atomic??) (eta)
 
-  Samples = sample(n,n,replace = T, prob=weights)
+  Samples<-sample(n,n,replace = T, prob=weights)
   
   return(list(S[Samples], Samples))
   
@@ -42,13 +40,18 @@ plot(table(py_result[[1]]))
 
 
 
-
-simulate_poisson_gamma <-function(shape, rate, n=1000){
+source("utils.R")
+simulatePoissonGamma<-function(shape, rate, n = 1000){
   
-  # Draw lambda from Beta distribution, scaled by lambda_max
-  lambdas = rgamma(shape, rate, n=n)
+  lambdas<-rgamma(shape, rate, n = n)
+  # shape is alpha
+  # rate is beta
+  # n is number of species
   
   # Draw Poisson samples with these lambdas
-  poisson_samples = rpois(lambda = lambdas, n = 1000)
-  return(poisson_samples)
+  speccounts <-rpois(lambda = lambdas, n = n)
+  cat("The simulated total number of individuals is: ", sum(speccounts), "\n")
+  freq_table<-getFrequencyTable(speccounts)
+  return(freq_table)
 }
+

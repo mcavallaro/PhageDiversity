@@ -28,7 +28,7 @@ bootstrapSpeciesCount<-function(speciesCount, n_bt_samples=2){
 }
 
 
-#' Function to species counts from list of individuals observed
+#' Function to get species counts from list of individuals observed
 #' argument: individuals
 #' spec_byhost_l[['Escherichia']]  %>% getSpeciesCount %>%  head()
 getSpeciesCount<-function(individuals){
