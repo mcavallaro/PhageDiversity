@@ -112,11 +112,15 @@ source("Par_estimators_MC.R")
 # import functions for PYP estimates
 source("pyp_EB_inference_fun.R")
 # import functions for bootstrap and other utils
-source("utils.R")
+#source("utils.R")
 #source("2025data.R")
+
 #' import data
-fulltable <- read.csv("data/phagesspeciescounts_perhostspec_Sept2024.csv", check.names=F)
-spec_byhost <- fulltable |> select(Host, `Phage Species`) |> nest_by(Host)
+fulltable <- read.csv("data/phagesspeciescounts_perhostspec_Sept2024.csv",
+                      check.names = FALSE)
+fulltable <- read.csv("data/3May2025_data.tsv",sep = "\t")
+#spec_byhost <- fulltable |> select(Host, `Phage Species`) |> nest_by(Host)
+spec_byhost <- fulltable |> select(Host,vOTU) |> nest_by(Host)
 spec_byhost_l <- as.list(spec_byhost$data)
 names(spec_byhost_l) <- spec_byhost$Host
 #' count number of samples per host species
@@ -124,33 +128,52 @@ names(spec_byhost_l) <- spec_byhost$Host
 nosamples_host <- sapply(spec_byhost_l, nrow)
 nospecies_host <- sapply(spec_byhost_l, function(x){nrow(unique(x))})
 samples_1K <- which(nosamples_host>999)
+samples_1K <- samples_1K[-which(names(samples_1K)=="Unspecified")]
 #' run validation
 #' 
 valid_res <- vector("list",length = length(samples_1K))
 names(valid_res) <- names(samples_1K)
+
+trainfrac <- c(0.8,0.65,0.5)
+valreps <- 2#50
+
 for (i in seq(along=samples_1K)){
 n1 <- samples_1K[i]
 speccounts<-getSpeciesCount(spec_byhost_l[[n1]])
 freq_table<-getFrequencyTable(speccounts)
 M <- extractM(speccounts)
-#' approx. 80% for training
-trainfrac <- 0.8
-trainsize <- round(nosamples_host[n1]*trainfrac)
-#'
-valid_res[[i]] <- intval(estim1=good_toulmin,trainsize = trainsize,
+#' approx. 80%,... for training
+trainsize <- ceiling(nosamples_host[n1]*trainfrac)
+#' GT (we stay below lambda = 1, so this should not be an issue)
+valid_res[[i]] <- sapply(trainsize,function(s1){
+                        intval(estim1=good_toulmin,trainsize = s1,
                         M = freq_table,type = "freq_table",
-                        n = 50 
-                        )
-colnames(valid_res[[i]]) <- paste0("GT.",colnames(valid_res[[i]]))
-
-valid_res[[i]] <- cbind(valid_res[[i]],
+                        n = valreps 
+                        )},simplify = "matrix")
+tempnames <- c("Min.","1st Qu.","Median",
+               "Mean","3rd Qu.","Max.")
+rownames(valid_res[[i]]) <-  c(paste("abs_err:",tempnames),
+                               paste("NMAE:",tempnames))
+colnames(valid_res[[i]]) <- paste0("GT:",trainfrac)
+#' ET (safety and sanity)
+valid_res[[i]] <- cbind(valid_res[[i]],sapply(trainsize,function(s1){
+  intval(estim1=efron_thisted,
+         trainsize = s1,
+         M = freq_table,
+         type = "freq_table",n = valreps)},
+  simplify = "matrix"))
+colnames(valid_res[[i]])[4:6] <- paste0("ET:",trainfrac)
+#' PYP
+valid_res[[i]] <- cbind(valid_res[[i]],sapply(trainsize,function(s1){
                         intval(estim1=BalocchiPYPWrapper,
-                               trainsize = trainsize,
-                               M = M,type = "Mrn",n = 50))
-colnames(valid_res[[i]])[c(3,4)] <- paste0("PYP.",
-                                           colnames(valid_res[[i]])[c(3,4)])
-                        }
-save(valid_res,file = "intval_n50_80pctrain_2024.RData")
-#new_species_ET[[n1]] = efron_thisted(freq_table, m)
-#new_species_PoiGamma[[n1]] = FisherPoissonGammaWrapper(freq_table, m)
-#new_species_PYP[[n1]] = BalocchiPYPWrapper(M, m)
+                               trainsize = s1,
+                               M = M,type = "Mrn",n = valreps)}))
+colnames(valid_res[[i]])[7:9] <- paste0("PYP:",trainfrac)
+#' FisherPoissonGamma
+valid_res[[i]] <- cbind(valid_res[[i]],sapply(trainsize,function(s1){
+  intval(estim1=FisherPoissonGammaWrapper,
+         trainsize = s1,
+         M = freq_table,type = "freq_table",n = valreps)}))
+colnames(valid_res[[i]])[10:12] <- paste0("FPG:",trainfrac)
+}
+save(valid_res,file = "intval_n50_train3_2025.RData")
