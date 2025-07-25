@@ -68,6 +68,14 @@ if (type=="Mrn"){
 }
 }  
 
+#use summary with NA's always recorded
+summaryna <- function(v){
+  out1 <- summary(v)
+  if(!any(is.na(v))){
+    out1 <- c(out1,"NA's"=0)
+  }
+  return(out1)
+}
 
 #' Use internal validation: split a dataset 
 #' n times into a test and validation subset,
@@ -98,7 +106,7 @@ estim_val <- estim1(split1$trainset,m)
 res[i,1] <- abs(estim_val-split1$val_n_speccount)
 res[i,2] <- abs(estim_val-split1$val_n_speccount)/split1$val_n_speccount
 }
-return(apply(res,2,summary))
+return(apply(res,2,summaryna))
 }
 ####################
 ####################
@@ -116,8 +124,8 @@ source("pyp_EB_inference_fun.R")
 #source("2025data.R")
 
 #' import data
-fulltable <- read.csv("data/phagesspeciescounts_perhostspec_Sept2024.csv",
-                      check.names = FALSE)
+#fulltable <- read.csv("data/phagesspeciescounts_perhostspec_Sept2024.csv",
+#                      check.names = FALSE)
 fulltable <- read.csv("data/3May2025_data.tsv",sep = "\t")
 #spec_byhost <- fulltable |> select(Host, `Phage Species`) |> nest_by(Host)
 spec_byhost <- fulltable |> select(Host,vOTU) |> nest_by(Host)
@@ -134,8 +142,8 @@ samples_1K <- samples_1K[-which(names(samples_1K)=="Unspecified")]
 valid_res <- vector("list",length = length(samples_1K))
 names(valid_res) <- names(samples_1K)
 
-trainfrac <- c(0.8,0.65,0.5)
-valreps <- 2#50
+trainfrac <- c(0.8,0.65,0.5,0.25)
+valreps <- 100#50
 
 for (i in seq(along=samples_1K)){
 n1 <- samples_1K[i]
@@ -151,7 +159,7 @@ valid_res[[i]] <- sapply(trainsize,function(s1){
                         n = valreps 
                         )},simplify = "matrix")
 tempnames <- c("Min.","1st Qu.","Median",
-               "Mean","3rd Qu.","Max.")
+               "Mean","3rd Qu.","Max.","NA's")
 rownames(valid_res[[i]]) <-  c(paste("abs_err:",tempnames),
                                paste("NMAE:",tempnames))
 colnames(valid_res[[i]]) <- paste0("GT:",trainfrac)
@@ -162,18 +170,19 @@ valid_res[[i]] <- cbind(valid_res[[i]],sapply(trainsize,function(s1){
          M = freq_table,
          type = "freq_table",n = valreps)},
   simplify = "matrix"))
-colnames(valid_res[[i]])[4:6] <- paste0("ET:",trainfrac)
+colnames(valid_res[[i]])[5:8] <- paste0("ET:",trainfrac)
 #' PYP
 valid_res[[i]] <- cbind(valid_res[[i]],sapply(trainsize,function(s1){
                         intval(estim1=BalocchiPYPWrapper,
                                trainsize = s1,
                                M = M,type = "Mrn",n = valreps)}))
-colnames(valid_res[[i]])[7:9] <- paste0("PYP:",trainfrac)
+colnames(valid_res[[i]])[9:12] <- paste0("PYP:",trainfrac)
 #' FisherPoissonGamma
 valid_res[[i]] <- cbind(valid_res[[i]],sapply(trainsize,function(s1){
   intval(estim1=FisherPoissonGammaWrapper,
          trainsize = s1,
          M = freq_table,type = "freq_table",n = valreps)}))
-colnames(valid_res[[i]])[10:12] <- paste0("FPG:",trainfrac)
+colnames(valid_res[[i]])[13:16] <- paste0("FPG:",trainfrac)#} else {
 }
-save(valid_res,file = "intval_n50_train3_2025.RData")
+save(valid_res,file = paste0("intval_n",valreps,"_train4_2025.RData"))
+#save(valid_res,file = paste0("intval_n",valreps,"_train4_2024.RData"))

@@ -1,0 +1,172 @@
+---
+title: "internal validation - unseen species predicted from phage bank"
+author: "MC, FF"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(knitr)
+library(janitor) #rounding up at 0.5
+library(tidyverse)
+```
+
+```{r,echo=FALSE}
+load("intval_n100_train4_2024.RData")
+```
+
+## General properties
+
+ * We are interested in prediciting the number of unseen species given a data set of already sampled individuals
+ * Based on two dumps of the phage database: September 2024 and May 2025
+ * We have performed 100 validation runs per host species, per year and per training data set size, where we divided the whole sampled species vector, per host species, *randomly* into training and validation sets with a predetermined size of the training set (in %, rounded up, of the full data set)
+ * We assessed the four estimators Good-Toulmin [GT], Efron-Thisted [ET], Empirical Bayes approach using an underlying Pitman-Yor-Process model (2 parameter) [PYP] and the (effectively one-dimensional) parametric Fisher-Poisson-Gamma model [FPG] for predicting the number of new (unseen) species in the validation subset   
+ * Error measure NMAE (normalized mean absolute error): records the absolute error between prediction and true value divided by the true value (=in units of the true value)
+    * we report the median of the NMAE across the 100 simulations [**We can add 25% and 75% without rerunning, I recorded summaries across the 100 sims in each parameter combination**]
+ 
+
+## Data from September 2024 - median NMAE
+
+
+```{r}
+res1 <- sapply(valid_res,
+               function(x){signif_half_up(x["NMAE: Median",],2)})
+#colnames(res1) <- abbreviate(colnames(res1),minlength = 6)
+kable(res1)
+```
+
+
+
+\newpage
+
+## Data from May 2025 - median NMAE
+
+```{r}
+load("intval_n100_train4_2025.RData")
+res2 <- sapply(valid_res,
+               function(x){signif_half_up(x["NMAE: Median",],2)})
+colnames(res2) <- abbreviate(colnames(res2),minlength = 6)
+kable(res2)
+```
+
+\newpage
+
+## Plots - median NMAE, 2024/25, training on 25%
+
+ * There are issues with the FPG estimator (2 missing data points)
+ * As expected, the GT estimator breaks down when predicting larger samples from smaller samples. The value is capped at +2, but actually is much larger for some species
+
+```{r}
+# 2024
+plotd <- res1
+plotd <- apply(plotd,c(1,2),function(x){min(x,2)})
+plotd <-  data.frame(t(plotd))|> rownames_to_column(var = "Host") 
+plotd <- plotd |> select(Host,GT.0.25,ET.0.25,PYP.0.25,FPG.0.25)
+plotd <- plotd |> pivot_longer(cols = !Host,names_to = "stat",
+                               values_to = "value")
+plotd <- plotd |> mutate(stat = fct_relevel(stat, 
+            c("GT.0.25","ET.0.25","PYP.0.25","FPG.0.25")))
+ggplot(data = plotd,aes(x=stat,y=value,colour = Host,group = Host)) + 
+  geom_point() +   geom_line() + labs(title = 2024)
+#2025
+plotd <- res2
+plotd <- apply(plotd,c(1,2),function(x){min(x,2)})
+plotd <-  data.frame(t(plotd))|> rownames_to_column(var = "Host") 
+plotd <- plotd |> select(Host,GT.0.25,ET.0.25,PYP.0.25,FPG.0.25)
+plotd <- plotd |> pivot_longer(cols = !Host,names_to = "stat",
+                               values_to = "value")
+plotd <- plotd |> mutate(stat = fct_relevel(stat, 
+            c("GT.0.25","ET.0.25","PYP.0.25","FPG.0.25")))
+ggplot(data = plotd,aes(x=stat,y=value,colour = Host,group = Host)) + 
+  geom_point() +   geom_line() + labs(title = 2025)
+
+```
+
+## Plots - median NMAE, 2024/25, training on 50%
+
+ * There are issues with the FPG estimator (missing data point)
+
+```{r}
+# 2024
+plotd <- res1
+plotd <- apply(plotd,c(1,2),function(x){min(x,2)})
+plotd <-  data.frame(t(plotd))|> rownames_to_column(var = "Host") 
+plotd <- plotd |> select(Host,GT.0.5,ET.0.5,PYP.0.5,FPG.0.5)
+plotd <- plotd |> pivot_longer(cols = !Host,names_to = "stat",
+                               values_to = "value")
+plotd <- plotd |> mutate(stat = fct_relevel(stat, 
+            c("GT.0.5","ET.0.5","PYP.0.5","FPG.0.5")))
+ggplot(data = plotd,aes(x=stat,y=value,colour = Host,group = Host)) + 
+  geom_point() +   geom_line() + labs(title = 2024)
+#2025
+plotd <- res2
+plotd <- apply(plotd,c(1,2),function(x){min(x,2)})
+plotd <-  data.frame(t(plotd))|> rownames_to_column(var = "Host") 
+plotd <- plotd |> select(Host,GT.0.5,ET.0.5,PYP.0.5,FPG.0.5)
+plotd <- plotd |> pivot_longer(cols = !Host,names_to = "stat",
+                               values_to = "value")
+plotd <- plotd |> mutate(stat = fct_relevel(stat, 
+            c("GT.0.5","ET.0.5","PYP.0.5","FPG.0.5")))
+ggplot(data = plotd,aes(x=stat,y=value,colour = Host,group = Host)) + 
+  geom_point() +   geom_line() + labs(title = 2025)
+
+```
+
+## Plots - median NMAE, 2024/25, training on 65%
+
+```{r}
+# 2024
+plotd <- res1
+plotd <- apply(plotd,c(1,2),function(x){min(x,2)})
+plotd <-  data.frame(t(plotd))|> rownames_to_column(var = "Host") 
+plotd <- plotd |> select(Host,GT.0.65,ET.0.65,PYP.0.65,FPG.0.65)
+plotd <- plotd |> pivot_longer(cols = !Host,names_to = "stat",
+                               values_to = "value")
+plotd <- plotd |> mutate(stat = fct_relevel(stat, 
+            c("GT.0.65","ET.0.65","PYP.0.65","FPG.0.65")))
+ggplot(data = plotd,aes(x=stat,y=value,colour = Host,group = Host)) + 
+  geom_point() +   geom_line() + labs(title = 2024)
+#2025
+plotd <- res2
+plotd <- apply(plotd,c(1,2),function(x){min(x,2)})
+plotd <-  data.frame(t(plotd))|> rownames_to_column(var = "Host") 
+plotd <- plotd |> select(Host,GT.0.65,ET.0.65,PYP.0.65,FPG.0.65)
+plotd <- plotd |> pivot_longer(cols = !Host,names_to = "stat",
+                               values_to = "value")
+plotd <- plotd |> mutate(stat = fct_relevel(stat, 
+            c("GT.0.65","ET.0.65","PYP.0.65","FPG.0.65")))
+ggplot(data = plotd,aes(x=stat,y=value,colour = Host,group = Host)) + 
+  geom_point() +   geom_line() + labs(title = 2025)
+
+```
+
+## Plots - median NMAE, 2024/25, training on 50%
+
+```{r}
+# 2024
+plotd <- res1
+plotd <- apply(plotd,c(1,2),function(x){min(x,2)})
+plotd <-  data.frame(t(plotd))|> rownames_to_column(var = "Host") 
+plotd <- plotd |> select(Host,GT.0.8,ET.0.8,PYP.0.8,FPG.0.8)
+plotd <- plotd |> pivot_longer(cols = !Host,names_to = "stat",
+                               values_to = "value")
+plotd <- plotd |> mutate(stat = fct_relevel(stat, 
+            c("GT.0.8","ET.0.8","PYP.0.8","FPG.0.8")))
+ggplot(data = plotd,aes(x=stat,y=value,colour = Host,group = Host)) + 
+  geom_point() +   geom_line() + labs(title = 2024)
+#2025
+plotd <- res2
+plotd <- apply(plotd,c(1,2),function(x){min(x,2)})
+plotd <-  data.frame(t(plotd))|> rownames_to_column(var = "Host") 
+plotd <- plotd |> select(Host,GT.0.8,ET.0.8,PYP.0.8,FPG.0.8)
+plotd <- plotd |> pivot_longer(cols = !Host,names_to = "stat",
+                               values_to = "value")
+plotd <- plotd |> mutate(stat = fct_relevel(stat, 
+            c("GT.0.8","ET.0.8","PYP.0.8","FPG.0.8")))
+ggplot(data = plotd,aes(x=stat,y=value,colour = Host,group = Host)) + 
+  geom_point() +   geom_line() + labs(title = 2025)
+
+```
+
+
