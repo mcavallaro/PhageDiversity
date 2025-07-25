@@ -144,7 +144,7 @@ ggplot(data = plotd,aes(x=stat,y=value,colour = Host,group = Host)) +
 
 ```
 
-## Plots - median NMAE, 2024/25, training on 50%
+## Plots - median NMAE, 2024/25, training on 80%
 
 ```{r}
 # 2024
