@@ -48,6 +48,9 @@ res2 <- sapply(valid_res,
                function(x){signif_half_up(x["NMAE: Median",],2)})
 colnames(res2) <- abbreviate(colnames(res2),minlength = 6)
 kable(res2)
+load("intval_n100_train4_2025.RData")
+res2 <- sapply(valid_res,
+               function(x){signif_half_up(x["NMAE: Median",],2)})
 ```
 
 \newpage
