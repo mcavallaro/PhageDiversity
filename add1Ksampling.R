@@ -36,3 +36,34 @@ obs_plus1K_may25 <- tibble(obs_plus1K_may25,
                            pred1K=sapply(obs_plus1K_may25$host,pred1K)) 
 obs_plus1K_may25 <- obs_plus1K_may25 |> mutate(perc_new = 100*pred1K/species_sampsize)
 knitr::kable(obs_plus1K_may25,format = "rst",digits = 2,align = "l")
+
+#' Get distribution of number of species in a "fresh"
+#' 1K sample of a non-sampled host 
+#' by subsampling a random present host species
+#' and then a random 1K subset
+
+get_1K <- function(size=1000){
+  rhost <- sample(samples_1K,1)
+  rsamp <- sample(spec_byhost_l[[rhost]]$vOTU,
+                  size = size,replace = FALSE) 
+  return(length(unique(rsamp)))                
+    }
+
+#' re(sub)sample nreps times
+nreps <- 10000
+dist_1Krand <- replicate(nreps,get_1K())  
+summary(dist_1Krand)
+
+#' Plot this, scale to percentage of
+#' sims in histogram bin
+library(ggplot2)
+scal1 <- 100/nreps #' percentage
+plotdata <- as_tibble(x=dist_1Krand)
+
+ggplot(data=plotdata) + 
+  geom_histogram(aes(x = value,
+                     y = after_stat(count)*scal1),
+                 binwidth = 20) +
+  labs(x="# phage species in 1K samples",
+       y="% of resampled sets") + 
+  expand_limits(x=c(0,1000))
