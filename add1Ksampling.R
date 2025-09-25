@@ -3,7 +3,7 @@ source("utils.R")
 library(magrittr)
 library(dplyr)
 library(janitor)
-# import functions for non-paramteric estimates
+#' import functions for non-parametric estimates
 source("NP_estimators_MC.R")
 #' Get data
 fulltable <- read.csv("data/3May2025_data.tsv",sep = "\t")
@@ -11,12 +11,14 @@ fulltable <- read.csv("data/3May2025_data.tsv",sep = "\t")
 spec_byhost <- fulltable |> select(Host,vOTU) |> nest_by(Host)
 spec_byhost_l <- as.list(spec_byhost$data)
 names(spec_byhost_l) <- spec_byhost$Host
+
 #' count number of samples per host species
 #' which ones are > 1000?
 nosamples_host <- sapply(spec_byhost_l, nrow)
 nospecies_host <- sapply(spec_byhost_l, function(x){nrow(unique(x))})
 samples_1K <- which(nosamples_host>999)
 samples_1K <- samples_1K[-which(names(samples_1K)=="Unspecified")]
+
 #' Get sample sizes and number of present species
 #' We can always run ET/GT, we have at least 1K 
 library(tibble)
