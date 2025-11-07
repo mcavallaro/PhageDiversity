@@ -44,18 +44,65 @@ kable(res1)
 
 ```{r}
 load("intval_n100_train4_2025.RData")
+#remove bajr
+valid_res <- valid_res[-9]
 res2 <- sapply(valid_res,
                function(x){signif_half_up(x["NMAE: Median",],2)})
 colnames(res2) <- abbreviate(colnames(res2),minlength = 6)
 kable(res2)
 load("intval_n100_train4_2025.RData")
+#remove bajr
+valid_res <- valid_res[-9]
 res2 <- sapply(valid_res,
                function(x){signif_half_up(x["NMAE: Median",],2)})
 ```
 
 \newpage
 
-## Plots - median NMAE, 2024/25, training on 25%
+```{r plot_prep_24}
+plotd <- res1
+plotd <- apply(plotd,c(1,2),function(x){min(x,2)})
+plotd <-  data.frame(t(plotd))|> rownames_to_column(var = "Host") 
+plotd <- plotd |> pivot_longer(cols = !Host,names_to = "stat",
+                               values_to = "value")
+plotd <- plotd |> separate_wider_delim(cols = stat,delim = ".0.",names = c("stat","training"))
+plotd <- plotd |>  mutate(stat = fct_relevel(stat, 
+            c("GT","ET","PYP","FPG")))
+plotd2024 <- plotd
+```
+
+```{r plot_prep_24}
+plotd <- res2
+plotd <- apply(plotd,c(1,2),function(x){min(x,2)})
+plotd <-  data.frame(t(plotd))|> rownames_to_column(var = "Host") 
+plotd <- plotd |> pivot_longer(cols = !Host,names_to = "stat",
+                               values_to = "value")
+plotd <- plotd |> separate_wider_delim(cols = stat,delim = ".0.",names = c("stat","training"))
+plotd <- plotd |>  mutate(stat = fct_relevel(stat, 
+            c("GT","ET","PYP","FPG")))
+plotd2025 <- plotd
+```
+
+
+## Plots
+
+```{r}
+ggplot(data = plotd2024,aes(x=stat,y=value,colour = Host,group = Host)) + 
+  geom_point() +   geom_line() + labs(title = 2024) + facet_wrap(vars(training),scales="free_y")
+```
+
+```{r}
+ggplot(data = plotd2025,aes(x=stat,y=value,colour = Host,group = Host)) + 
+  geom_point() +   geom_line() + labs(title = 2025) + facet_wrap(vars(training),scales="free_y")
+```
+
+
+```{r}
+ggplot(data = plotd2024,aes(x=training,y=value,colour = stat,group = stat)) +   geom_point() +   geom_line() + labs(title = 2024) + lims(y=c(0,1)) + facet_wrap(vars(Host),scales="free_y")
+```
+```{r}
+ggplot(data = plotd2025,aes(x=training,y=value,colour = stat,group = stat)) +   geom_point() +   geom_line() + labs(title = 2025) + lims(y=c(0,0.2)) + facet_wrap(vars(Host),scales="free_y")
+```
 
  * There are issues with the FPG estimator (2 missing data points)
  * As expected, the GT estimator breaks down when predicting larger samples from smaller samples. The value is capped at +2, but actually is much larger for some species
