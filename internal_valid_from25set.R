@@ -119,9 +119,9 @@ return(out1)
 #' Example analysis
 library(magrittr)
 library(dplyr)
-# import functions for non-paramteric estimates
+# import functions for non-parametric estimates
 source("NP_estimators_MC.R")
-# import functions for paramteric estimates
+# import functions for parametric estimates
 source("Par_estimators_MC.R")
 # import functions for PYP estimates
 source("pyp_EB_inference_fun.R")
@@ -176,7 +176,8 @@ M <- extractM(speccounts)
 trainsize <- ceiling(nosamples_host[n1]*trainfrac)
 #' add actual size from 2024 as training size
 if (yr==2025){
-  trainsize <- c(trainsize,sum(speccounts))
+  obs_2024 <- fulltable25 |> filter(Host==names(n1),in2024==TRUE) |> nrow()  
+  trainsize <- c(trainsize,obs_2024)
   trainfrac <- c(trainfrac,"0.pred")#for naming later 
 }
 #' GT (unstable lambda>1)
