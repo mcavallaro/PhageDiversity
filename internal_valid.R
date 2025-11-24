@@ -87,9 +87,14 @@ summaryna <- function(v){
 #' M= named freq table or Mr,n vector (the data) 
 #' trainsize: size of training subset
 #' type=freq_table or Mrn 
+#' out: "raw" outputs 2-col matrix w. 
+#' absolute errors (col 1) and NMAEs (col2)
+#' for the n assessments, "summ" only a summary
+#' using summaryna above for each column  
 intval <- function(estim1=BalocchiPYPWrapper,
                    trainsize,M,
-                   type="Mrn",n=10){
+                   type="Mrn",n=10,
+                   out="summ"){
 res <- cbind("abs_err"=rep(-1,n),
              "NMAE"=rep(-1,n))
 #' counts number of phages  
@@ -106,7 +111,8 @@ estim_val <- estim1(split1$trainset,m)
 res[i,1] <- abs(estim_val-split1$val_n_speccount)
 res[i,2] <- abs(estim_val-split1$val_n_speccount)/split1$val_n_speccount
 }
-return(apply(res,2,summaryna))
+out1 <- switch(out,"raw"=res,"summ"=apply(res,2,summaryna))
+return(out1)
 }
 ####################
 ####################
@@ -152,7 +158,7 @@ freq_table<-getFrequencyTable(speccounts)
 M <- extractM(speccounts)
 #' approx. 80%,... for training
 trainsize <- ceiling(nosamples_host[n1]*trainfrac)
-#' GT (we stay below lambda = 1, so this should not be an issue)
+#' GT (unstable lambda>1)
 valid_res[[i]] <- sapply(trainsize,function(s1){
                         intval(estim1=good_toulmin,trainsize = s1,
                         M = freq_table,type = "freq_table",
