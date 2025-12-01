@@ -87,16 +87,21 @@ summaryna <- function(v){
 #' M= named freq table or Mr,n vector (the data) 
 #' trainsize: size of training subset
 #' type=freq_table or Mrn 
-#' out: "raw" outputs 2-col matrix w. 
+#' out: 3 options 
+#' "rawdist" outputs 2-col matrix w. 
 #' absolute errors (col 1) and NMAEs (col2)
-#' for the n assessments, "summ" only a summary
-#' using summaryna above for each column  
+#' for the n assessments, 
+#' "summdist" only a summary
+#' using summaryna above for each column
+#' "raw": true values and estimated values   
 intval <- function(estim1=BalocchiPYPWrapper,
                    trainsize,M,
                    type="Mrn",n=10,
-                   out="summ"){
+                   out="raw"){
 res <- cbind("abs_err"=rep(-1,n),
-             "NMAE"=rep(-1,n))
+             "NAE"=rep(-1,n))
+raw1 <- cbind("true"=rep(-1,n),
+              "estim"=rep(-1,n))
 #' counts number of phages  
 totalsize <- switch(type,
                     "freq_table"=sum(as.integer(names(M))*M),
@@ -108,10 +113,17 @@ split1 <- make_train_val_sets(M,size = trainsize,
 
 estim_val <- estim1(split1$trainset,m)
 #' record # new species estimate with real value
+if (out=="raw"){
+  raw1[i,2] <- estim_val
+  raw1[i,1] <- split1$val_n_speccount  
+} else {
 res[i,1] <- abs(estim_val-split1$val_n_speccount)
-res[i,2] <- abs(estim_val-split1$val_n_speccount)/split1$val_n_speccount
+res[i,2] <- abs(estim_val-split1$val_n_speccount)/split1$val_n_speccount}
 }
-out1 <- switch(out,"raw"=res,"summ"=apply(res,2,summaryna))
+out1 <- switch(out,
+               "rawdist"=res,
+               "summdist"=apply(res,2,summaryna),
+               "raw"=raw1)
 return(out1)
 }
 ####################
@@ -155,20 +167,21 @@ names(spec_byhost_l) <- spec_byhost$Host
 #' which ones are > 1000?
 nosamples_host <- sapply(spec_byhost_l, nrow)
 nospecies_host <- sapply(spec_byhost_l, function(x){nrow(unique(x))})
-samples_1K <- which(nosamples_host>999)
-samples_1K <- samples_1K[-which(names(samples_1K)%in%c("Unspecified",
-                                                       "bajarodmic"))]
+samples_1K <- c("Escherichia","Klebsiella",
+                "Mycobacterium","Pseudomonas",
+                "Salmonella","Staphylococcus",
+                "Streptococcus","Vibrio")
 
 #' run validation
 #' 
 valid_res <- vector("list",length = length(samples_1K))
-names(valid_res) <- names(samples_1K)
+names(valid_res) <- samples_1K
 
-valreps <- 100#50
+valreps <- 500#50
 
 for (i in seq(along=samples_1K)){
 n1 <- samples_1K[i]
-trainfrac <- c(0.8,0.65,0.5,0.25)
+trainfrac <- c(0.8,0.65,0.5,0.35,0.25)
 speccounts<-getSpeciesCount(spec_byhost_l[[n1]])
 freq_table<-getFrequencyTable(speccounts)
 M <- extractM(speccounts)
@@ -176,7 +189,7 @@ M <- extractM(speccounts)
 trainsize <- ceiling(nosamples_host[n1]*trainfrac)
 #' add actual size from 2024 as training size
 if (yr==2025){
-  obs_2024 <- fulltable25 |> filter(Host==names(n1),in2024==TRUE) |> nrow()  
+  obs_2024 <- fulltable25 |> filter(Host==n1,in2024==TRUE) |> nrow()  
   trainsize <- c(trainsize,obs_2024)
   trainfrac <- c(trainfrac,"0.pred")#for naming later 
 }
@@ -184,18 +197,22 @@ if (yr==2025){
 valid_res[[i]] <- sapply(trainsize,function(s1){
                         intval(estim1=good_toulmin,trainsize = s1,
                         M = freq_table,type = "freq_table",
-                        n = valreps,out = "raw" 
+                        n = valreps,out = "rawdist" 
                         )},simplify = "matrix")
 
 rownames(valid_res[[i]]) <-  c(rep("abs_err",valreps),
                                rep("NAE:",valreps))
+  
+                             #c(rep("true",valreps),
+                             #rep("estim",valreps))
+                             
 colnames(valid_res[[i]])[1:length(trainfrac)] <- paste0("GT:",trainfrac)
 #' ET (safety and sanity)
 valid_res[[i]] <- cbind(valid_res[[i]],sapply(trainsize,function(s1){
   intval(estim1=efron_thisted,
          trainsize = s1,
          M = freq_table,
-         type = "freq_table",n = valreps,out = "raw")},
+         type = "freq_table",n = valreps,out = "rawdist")},
   simplify = "matrix"))
 colnames(valid_res[[i]])[length(trainfrac) + 1:length(trainfrac)] <- paste0("ET:",trainfrac)
 #' PYP
@@ -203,15 +220,15 @@ valid_res[[i]] <- cbind(valid_res[[i]],sapply(trainsize,function(s1){
                         intval(estim1=BalocchiPYPWrapper,
                                trainsize = s1,
                                M = M,type = "Mrn",n = valreps,
-                               out = "raw")}))
+                               out = "rawdist")}))
 colnames(valid_res[[i]])[2*length(trainfrac) + 1:length(trainfrac)] <- paste0("PYP:",trainfrac)
 #' FisherPoissonGamma
 valid_res[[i]] <- cbind(valid_res[[i]],sapply(trainsize,function(s1){
   intval(estim1=FisherPoissonGammaWrapper,
          trainsize = s1,
          M = freq_table,type = "freq_table",
-         n = valreps,out = "raw")}))
+         n = valreps,out = "rawdist")}))
 colnames(valid_res[[i]])[3*length(trainfrac) + 1:length(trainfrac)] <- paste0("FPG:",trainfrac)#} else {
 }
-save(valid_res,file = paste0("intval_n",valreps,"_train4_allres_",yr,".RData"))
+save(valid_res,file = paste0("intval_n",valreps,"_train5_rawdist_",yr,".RData"))
 }

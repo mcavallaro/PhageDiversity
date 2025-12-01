@@ -16,8 +16,8 @@ source("NP_estimators_MC.R")
 source("Par_estimators_MC.R")
 # import functions for PYP estimates
 source("pyp_EB_inference_fun.R")
-#' Import validation errors
-load("intval_n100_train4_allres_2025.RData")
+#' Import validation errors 2025
+load("intval_n500_train5_rawdist_2025.RData")
 #' import data
 fulltable24 <- read.csv("data/phagesspeciescounts_perhostspec_Sept2024.csv",
                         check.names = FALSE)
@@ -28,6 +28,9 @@ species_analysed <- names(valid_res)
 res_ps <- matrix(-1,nrow = length(species_analysed),
                  ncol=length(stats),
                  dimnames = list(species_analysed,stats))
+obsNE <- matrix(-1,nrow = length(species_analysed),
+                ncol=length(stats),
+                dimnames = list(species_analysed,stats))
 for (s1 in stats){
 for (h1 in species_analysed){
 data1 <- fulltable25 |> filter(Host==h1) |> select(in2024,vOTU)  
@@ -53,13 +56,16 @@ obs_nae <- abs(pred_u_may25 - obs_u_may25)/obs_u_may25
 valid_err <- valid_res[[h1]][rownames(valid_res[[h1]])=="NAE:",] 
 
 #perform montecarlo test
+cat(h1,"observed NAE: ",obs_nae,"\n")
 cat(h1,": ",ecdf(c(valid_err[,paste0(s1,":0.pred")],
                    obs_nae))(obs_nae),"\n")
 res_ps[h1,s1] <- ecdf(c(valid_err[,paste0(s1,":0.pred")],
                         obs_nae))(obs_nae)
+obsNE[h1,s1] <- (pred_u_may25 - obs_u_may25)/obs_u_may25
 }}
                                                        
-save(res_ps,file="pvalues_dumppred.RData")
+save(res_ps,obsNE,
+     file="pvalues_dumppred.RData_n500")
 
 
 
