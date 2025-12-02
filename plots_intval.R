@@ -116,8 +116,7 @@ ggsave("intval_2025_byhost.pdf",
 #' same plot, by stats, across training sizes
 ggplot(data = plotd |> 
          filter(!(training %in% c("0.25","0.35") &
-                    stat=="GT")) |> 
-         filter(value<=2),
+                    stat=="GT")),
        aes(x=host,y=value,fill=training)) + 
   geom_boxplot(outlier.size = .4) + 
   labs(title = 2025,
