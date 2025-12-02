@@ -34,35 +34,49 @@ plotd <- plotd |> separate_wider_delim(cols = stat,delim = ":",
                                        names = c("stat","training"))
 plotd <- plotd |>  mutate(stat = fct_relevel(stat, 
                                              c("GT","ET","PYP","FPG")))
-
-#' Doublecheck: only >2 for GT
-#plotd |> filter(value>2) |> select(stat) |> table()
-#' Set values to at most 2
-#plotd$value <- sapply(plotd$value,function(x){min(2,x)})
-
-#' As GT is bad for lambda>1 we make 2 plots - 
-#' one for lamba <=1 with all statistics and one for all
-#' lambda for all but GT
-
-#' plot for small lambda
-ggplot(data = plotd |> filter(!training %in% c("0.25","0.35")),
-       aes(x=training,y=value,fill=stat)) + 
-  geom_boxplot() + labs(title = 2024,
-                        x="% training",
-                        y="NAE") + 
-  facet_wrap(vars(host),scales="free_y")
-ggsave("intval_2024_gt.pdf")
-
-#' plot for lambda > 1, no GT
+#' Check: which values are NA
+plotd |> filter(is.na(value)) |> 
+  group_by(host,stat,training) |> count()
+#' issue: Strep 0.25 is nearly all missing
+#' Check: which values are >2
+plotd |> filter(value>2) |> 
+  group_by(host,stat,training) |> count()
+#' result: only GT for 0.25 and 3.5 and one 
+#' value for FPG (which we remove) 
+#' plot: facets=hosts, no GT for 0.25 and 3.5
+#' remove the single > 2 value
 ggplot(data = plotd |> 
-         filter(!stat == "GT",
-                training %in% c("0.25","0.35")),
+         filter(!(training %in% c("0.25","0.35") &
+                  stat=="GT")) |> 
+         filter(value<=2),
        aes(x=training,y=value,fill=stat)) + 
-  geom_boxplot() + labs(title = 2024,
-                        x="% training",
+  geom_boxplot(outlier.size = .4) + 
+  labs(title = 2024,
+                        x="training set size",
                         y="NAE") + 
-  facet_wrap(vars(host),scales="free_y")
-ggsave("intval_2024_nogt_smalltrain.pdf")
+  facet_wrap(vars(host),
+             nrow = 4,
+             scales="free_y")
+ggsave("intval_2024_byhost.pdf",
+       height = 6,width = 5)
+
+#' same plot, by stats, across training sizes
+ggplot(data = plotd |> 
+         filter(!(training %in% c("0.25","0.35") &
+                    stat=="GT")) |> 
+         filter(value<=2),
+       aes(x=host,y=value,fill=training)) + 
+  geom_boxplot(outlier.size = .4) + 
+  labs(title = 2024,
+       x="Host",
+       y="NAE") + 
+  theme(axis.text.x = element_text(angle = 90,
+        vjust = 0.5, hjust=1)) +
+  facet_wrap(vars(stat),
+             nrow = 2,
+             scales="free_y")
+ggsave("intval_2024_bystat.pdf",
+       height = 4,width = 8)
 
 
 #2025
@@ -76,52 +90,45 @@ plotd <- plotd |>  mutate(stat = fct_relevel(stat,
                                              c("GT","ET","PYP","FPG")))
 plotd <- plotd |>  filter(training!="0.pred")
 
-#' Doublecheck: only >2 for GT
-#plotd |> filter(value>2) |> select(stat) |> table()
-
-#' Set values to at most 2
-#plotd$value <- sapply(plotd$value,function(x){min(2,x)})
-
-ggplot(data = plotd |>
-         filter(!training %in% c("0.25","0.35")),
-       aes(x=training,y=value,fill=stat)) + 
-  geom_boxplot() + labs(title = 2025,
-                        x="% training",
-                        y="NAE") + 
-  facet_wrap(vars(host),scales="free_y")
-ggsave("intval_2025_gt.pdf")
-
-#' plot for lambda > 1, no GT
+#' Check: which values are NA
+plotd |> filter(is.na(value)) |> 
+  group_by(host,stat,training) |> count()
+#' issue: Strep 0.25 is all missing
+#' Check: which values are >2
+plotd |> filter(value>2) |> 
+  group_by(host,stat,training) |> count()
+#' result: only GT for 0.25 and 3.5 
+#' plot: facets=hosts, no GT for 0.25 and 3.5
 ggplot(data = plotd |> 
-         filter(!stat == "GT",
-                training %in% c("0.25","0.35")),
+         filter(!(training %in% c("0.25","0.35") &
+                    stat=="GT")),
        aes(x=training,y=value,fill=stat)) + 
-  geom_boxplot() + labs(title = 2025,
-                        x="% training",
-                        y="NAE") + 
-  facet_wrap(vars(host),scales="free_y")
-ggsave("intval_2025_nogt_smalltrain.pdf")
+  geom_boxplot(outlier.size = .4) + 
+  labs(title = 2025,
+       x="training set size",
+       y="NAE") + 
+  facet_wrap(vars(host),
+             nrow = 4,
+             scales="free_y")
+ggsave("intval_2025_byhost.pdf",
+       height = 6,width = 5)
 
-
-ggplot(data = plotd |> filter(stat!="GT"),
+#' same plot, by stats, across training sizes
+ggplot(data = plotd |> 
+         filter(!(training %in% c("0.25","0.35") &
+                    stat=="GT")) |> 
+         filter(value<=2),
        aes(x=host,y=value,fill=training)) + 
-  geom_boxplot() + labs(title = 2025,
-                        x="% training",
-                        y="NAE") + theme() + 
+  geom_boxplot(outlier.size = .4) + 
+  labs(title = 2025,
+       x="Host",
+       y="NAE") + 
+  theme(axis.text.x = element_text(angle = 90,
+                                   vjust = 0.5, hjust=1)) +
   facet_wrap(vars(stat),
-             scales="free_y") +
-theme(axis.text.x = element_text(angle = 90))
-ggsave("intval_2025_bytraining.pdf")
-
-
-
-ggplot(data = plotd,
-       aes(x=training,y=value,fill=stat)) + 
-  geom_boxplot() + labs(title = 2025,
-                        x="% training",
-                        y="NAE") + 
-  lims(y=c(0,0.2)) +
-  facet_wrap(vars(host),scales="free_y")
-#ggsave("intval_2025_zoom.pdf")
+             nrow = 2,
+             scales="free_y")
+ggsave("intval_2025_bystat.pdf",
+       height = 4,width = 8)
 
 
