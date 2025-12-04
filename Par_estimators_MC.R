@@ -61,7 +61,7 @@ PoissonGamma_MLE<-function(freq_table,
 
 FisherPoissonGamma<-function(alpha, beta, freq_table, m){
   #From Efron-Thisted Paper, page 438, below eq. 3.3
-  gamma = beta / (1 - beta)
+  gamma = beta / (1 + beta)
   n = c(freq_table %*% as.numeric(names(freq_table)))
   t = m / n
   eta1 = freq_table[1] # number of species observed exactly one time
