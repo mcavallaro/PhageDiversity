@@ -17,7 +17,7 @@ source("Par_estimators_MC.R")
 # import functions for PYP estimates
 source("pyp_EB_inference_fun.R")
 #' Import validation errors 2025
-load("intval_n500_train5_rawdist_2025.RData")
+load("intval_n500_train5_rawdist_2025c.RData")
 #' import data
 fulltable24 <- read.csv("data/phagesspeciescounts_perhostspec_Sept2024.csv",
                         check.names = FALSE)
@@ -66,9 +66,3 @@ obsNE[h1,s1] <- (pred_u_may25 - obs_u_may25)/obs_u_may25
                                                        
 save(res_ps,obsNE,
      file="pvalues_dumppred.RData_n500")
-
-
-
-
-
- 
