@@ -1,4 +1,5 @@
 #' From the 
+library(tidyverse)
 load("plot_data.RData")
 
 testf <- function(v,w){v[which(w==min(w))]}
@@ -8,6 +9,7 @@ meanerr <- plotd_24 |>
 t1 <- meanerr |> reframe(bestmod=testf(stat,sum1))
 cat("2024")
 table(t1$bestmod)
+tapply(t1$bestmod,t1$training,table)
 
 meanerr <- plotd_25 |> filter() |> 
   group_by(host,training,stat) |> 
@@ -15,6 +17,7 @@ meanerr <- plotd_25 |> filter() |>
 t1 <- meanerr |> reframe(bestmod=testf(stat,sum1))
 cat("2025")
 table(t1$bestmod)
+tapply(t1$bestmod,t1$training,table)
 
 
 plotd_24 |> group_by(training,stat) |> summarise(mean(value)) |>
@@ -32,7 +35,7 @@ wilcx_p <- matrix(-1,nrow=length(unique(plotd_25$host)),
                                
 for (h1 in unique(plotd_25$host)){
   for (t2 in unique(plotd_25$training)){
-if (h1=="Streptococcus" & t2=="0.25"){next}
+#if (h1=="Streptococcus" & t2=="0.25"){next}
 wilcx_p[h1,t2] <- try(as.numeric(wilcox.test(x = plotd_25$value[plotd_25$host==h1 &
                                      plotd_25$training==t2 &
                                      plotd_25$stat=="ET"],
@@ -44,3 +47,5 @@ cat("host",h1,", train",t2,":",wilcx_p[h1,t2],"\n")
   }}
 
 knitr::kable(wilcx_p,digits = 3,format = "latex")
+
+sum(p.adjust(wilcx_p,"holm")<0.05)/(nrow(wilcx_p)*ncol(wilcx_p))
