@@ -78,7 +78,7 @@ ggplot(data = plotd |>
 ggsave("intval_2024_bystat.pdf",
        height = 4,width = 8)
 
-
+plotd_24 <- plotd
 #2025
 
 #' Prepare for plots
@@ -129,3 +129,7 @@ ggplot(data = plotd |>
              scales="free_y")
 ggsave("intval_2025_bystat.pdf",
        height = 4,width = 8)
+
+
+plotd_25 <- plotd
+save(plotd_25,plotd_24,file="plot_data.RData")
