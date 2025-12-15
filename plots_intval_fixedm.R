@@ -42,4 +42,21 @@ for (i in seq(along=ps1)){
 }
 dev.off()
 
+#' w/o outliers
+ps1 <- vector("list",length=length(valid_res))
+names(ps1) <- names(valid_res)
+for (n1 in names(ps1)){
+  ps1[[n1]] <- ggplot(data = plotd |> filter(host==n1),
+                      aes(x=`# predicted`,y=value,fill=stat)) + 
+    geom_boxplot(outlier.size = .4,outliers = FALSE) + 
+    labs(title = paste("Predict new species in sample of size m=... , host",n1),
+         y="NAE") + 
+    facet_wrap(vars(`# training`),
+               scales="free_y")}
+pdf("plots_fixedm_noout.pdf")
+for (i in seq(along=ps1)){
+  print(ps1[[i]])
+}
+dev.off()
+
 
