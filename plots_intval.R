@@ -27,7 +27,10 @@ for (i in 2:length(valid_res)){
 }
 
 
-#' Prepare for plots 
+#' Prepare for plots
+plotout <- FALSE#set whether to plot outliers
+bp_suffix <- ifelse(plotout,"","_noout")
+#' 24 
 plotd <- res24 |> pivot_longer(cols = !host,names_to = "stat",
                                values_to = "value")
 plotd <- plotd |> separate_wider_delim(cols = stat,delim = ":",
@@ -50,14 +53,14 @@ ggplot(data = plotd |>
                   stat=="GT")) |> 
          filter(value<=2),
        aes(x=training,y=value,fill=stat)) + 
-  geom_boxplot(outlier.size = .4) + 
+  geom_boxplot(outlier.size = .4,outliers=plotout) + 
   labs(title = 2024,
                         x="training set size",
                         y="NAE") + 
   facet_wrap(vars(host),
              nrow = 4,
              scales="free_y")
-ggsave("intval_2024_byhost.pdf",
+ggsave(paste0("intval_2024_byhost",bp_suffix,".pdf"),
        height = 6,width = 5)
 
 #' same plot, by stats, across training sizes
@@ -66,7 +69,7 @@ ggplot(data = plotd |>
                     stat=="GT")) |> 
          filter(value<=2),
        aes(x=host,y=value,fill=training)) + 
-  geom_boxplot(outlier.size = .4) + 
+  geom_boxplot(outlier.size = .4,outliers=plotout) + 
   labs(title = 2024,
        x="Host",
        y="NAE") + 
@@ -75,7 +78,7 @@ ggplot(data = plotd |>
   facet_wrap(vars(stat),
              nrow = 2,
              scales="free_y")
-ggsave("intval_2024_bystat.pdf",
+ggsave(paste0("intval_2024_bystat",bp_suffix,".pdf"),
        height = 4,width = 8)
 
 plotd_24 <- plotd
@@ -103,14 +106,14 @@ ggplot(data = plotd |>
          filter(!(training %in% c("0.25","0.35") &
                     stat=="GT")),
        aes(x=training,y=value,fill=stat)) + 
-  geom_boxplot(outlier.size = .4) + 
+  geom_boxplot(outlier.size = .4,outliers = plotout) + 
   labs(title = 2025,
        x="training set size",
        y="NAE") + 
   facet_wrap(vars(host),
              nrow = 4,
              scales="free_y")
-ggsave("intval_2025_byhost.pdf",
+ggsave(paste0("intval_2025_byhost",bp_suffix,".pdf"),
        height = 6,width = 5)
 
 #' same plot, by stats, across training sizes
@@ -118,7 +121,7 @@ ggplot(data = plotd |>
          filter(!(training %in% c("0.25","0.35") &
                     stat=="GT")),
        aes(x=host,y=value,fill=training)) + 
-  geom_boxplot(outlier.size = .4) + 
+  geom_boxplot(outlier.size = .4,outliers=plotout) + 
   labs(title = 2025,
        x="Host",
        y="NAE") + 
@@ -127,7 +130,7 @@ ggplot(data = plotd |>
   facet_wrap(vars(stat),
              nrow = 2,
              scales="free_y")
-ggsave("intval_2025_bystat.pdf",
+ggsave(paste0("intval_2025_bystat",bp_suffix,".pdf"),
        height = 4,width = 8)
 
 
