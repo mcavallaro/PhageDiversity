@@ -1,7 +1,8 @@
-This repository contains software used in reference [1]. Please cite [1] if you find these repositories useful. The software is organised as follows.
+This repository contains software used in reference [1]. Please cite [1] if you find these repositories useful.
 
-![](https://github.com/mcavallaro/PhageDiversity/blob/clean/cover.png?raw=true)
+<img src="https://github.com/mcavallaro/PhageDiversity/blob/clean/cover.png?raw=true" alt="" style="width:50%; height:auto;">
 
+The software is organised as follows.
 
   * Scripts with estimators.
     - `FPG_estimator.R`
@@ -17,9 +18,9 @@ This repository contains software used in reference [1]. Please cite [1] if you 
     - `internal_valid_from25set.R`   
  
   * Scripts to illustrate diversity and predictions.
-      - `diversity.R`
-      - `inext_asymp_plot.R`
-      - `histograms.R`
-      - `predict_ET_monotone.R`
-	  - `predict_DB24.R`
-	  - `predict_DB24.R`
+    - `diversity.R`
+    - `inext_asymp_plot.R`
+    - `histograms.R`
+    - `predict_ET_monotone.R`
+    - `predict_DB24.R`
+	- `predict_DB24.R`
