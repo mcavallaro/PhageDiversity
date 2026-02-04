@@ -20,7 +20,7 @@ samples_1K <- which(nosamples_host>999)
 samples_1K <- samples_1K[-6]
 #lambda <- c(.5,.8,1,1.5) #lambda=m/n
 #' Load fcts
-source("pyp_EB_inference_fun.R")
+source("PYP_estimator.R")
 source("utils.R")
 #' Perform alpha,theta ML optim for PYP
 mlparam_pyp <- vector("list",length(samples_1K))
@@ -52,7 +52,7 @@ mlparam_pyp[[n1]][[i]] <- PYP_MLE(extractM(
 #' PYP estimates for the exact number of additional phages 
 #' sampled on each host 
 #' 
-source("2025data.R")
+source("import_data.R")
 #add_samples <- 500
 res1 <- sapply(1:6,function(i){
 uhat_pyp(alpha = mlparam_pyp[[i]][[1]]["alpha"],
@@ -63,7 +63,7 @@ uhat_pyp(alpha = mlparam_pyp[[i]][[1]]["alpha"],
 )
 names(res1) <- names(samples_1K)
 #' GT estimates
-source("NP_estimators_MC.R")
+source("nonparam_estimators.R")
 res2 <- sapply(1:6,
                function(i){good_toulmin(
                  freq_table = getFrequencyTable(getSpeciesCount(spec_byhost_l[[

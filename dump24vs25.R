@@ -11,11 +11,11 @@ library(dplyr)
 source("utils.R")
 
 # import functions for non-paramteric estimates
-source("NP_estimators_MC.R")
+source("nonparam_estimators.R")
 # import functions for paramteric estimates
-source("Par_estimators_MC.R")
+source("FPG_estimator.R")
 # import functions for PYP estimates
-source("pyp_EB_inference_fun.R")
+source("PYP_estimator.R")
 #' Import validation errors 2025
 load("intval_n500_train5_rawdist_2025c.RData")
 #' import data

@@ -4,7 +4,7 @@ library(magrittr)
 library(dplyr)
 library(janitor)
 #' import functions for non-parametric estimates
-source("NP_estimators_MC.R")
+source("nonparam_estimators.R")
 #' Get data
 fulltable <- read.csv("data/3May2025_data.tsv",sep = "\t")
 #spec_byhost <- fulltable |> select(Host, `Phage Species`) |> nest_by(Host)

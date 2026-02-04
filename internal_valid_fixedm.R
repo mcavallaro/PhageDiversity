@@ -133,11 +133,11 @@ return(out1)
 library(magrittr)
 library(dplyr)
 # import functions for non-parametric estimates
-source("NP_estimators_MC.R")
+source("nonparam_estimators.R")
 # import functions for parametric estimates
-source("Par_estimators_MC.R")
+source("FPG_estimator.R")
 # import functions for PYP estimates
-source("pyp_EB_inference_fun.R")
+source("PYP_estimator.R")
 # import functions for bootstrap and other utils
 #source("utils.R")
 #source("2025data.R")

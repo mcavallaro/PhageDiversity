@@ -120,14 +120,14 @@ return(out1)
 library(magrittr)
 library(dplyr)
 # import functions for non-paramteric estimates
-source("NP_estimators_MC.R")
+source("nonparam_estimators.R")
 # import functions for paramteric estimates
-source("Par_estimators_MC.R")
+source("FPG_estimators_MC.R")
 # import functions for PYP estimates
-source("pyp_EB_inference_fun.R")
+source("PYP_estimator.R")
 # import functions for bootstrap and other utils
 #source("utils.R")
-#source("2025data.R")
+#source("import_data.R")
 
 #' import data
 #fulltable <- read.csv("data/phagesspeciescounts_perhostspec_Sept2024.csv",
