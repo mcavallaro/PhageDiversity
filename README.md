@@ -1,6 +1,6 @@
 This repository contains software used in reference [1]. Please cite [1] if you find these repositories useful. The software is organised as follows.
 
-![](https://github.com/mcavallaro/PhageDiversity/blob/clean/cover.jpg?raw=true)
+![](https://github.com/mcavallaro/PhageDiversity/blob/clean/cover.png?raw=true)
 
 
   * Scripts with estimators.
