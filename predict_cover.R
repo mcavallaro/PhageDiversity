@@ -72,6 +72,7 @@ data1<-new_species_ET[new_species_ET$estim. == 'mod. ET',]
 labels<-data1 %>% group_by(host) %>% slice_tail(n=1)
 
 data1 |> ggplot() + geom_line(
+    linewidth = 1,
     aes(x = m, y = value, colour = host)
   ) +
   geom_text_repel(
