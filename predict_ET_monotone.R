@@ -101,8 +101,8 @@ for (n1 in host_names ){
   bt_ET_qu2<-tibble(qlow = bt_ET_qu[,1],
                     qhigh = bt_ET_qu[,2],
                     m2 = rep(m,2),
-  estim.<-c(rep("ET", length(m)),
-            rep("mod. ET", length(m))))
+                    estim. = c(rep("ET", length(m)), rep("mod. ET", length(m)))
+                    )
   bt_ET_qu2<-bt_ET_qu2 |> rename(m=m2)
   t1<-inner_join(t1, bt_ET_qu2, by = c("m", "estim."))
   new_species_ET<-bind_rows(new_species_ET, t1)
