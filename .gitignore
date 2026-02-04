@@ -1,6 +1,7 @@
 # Real datasets and pdf:
 *.csv
 *.pdf
+*.Rproj
 
 # History files
 .Rhistory
