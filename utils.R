@@ -52,3 +52,23 @@ bootstrapObservedIndividuals<-function(individuals, n_bt_samples=2){
   # list(freq_table=freq, bootstrapped_individuals=tmp)
   return(tmp)
 }
+
+BootstrapPredictionIntervals<-function(new_species_estimate, m, num_boostrap_samples){
+  n = max(m)
+  for(i in 1:num_boostrap_samples){
+    attribute_name = sprintf("Boostrap sample %d", i)
+    n1 = length(attributes(new_species_estimate)[[attribute_name]])
+    if (n1 < n){
+      n = n1
+    }
+  }
+  tmp.df = data.frame(1:n)
+  for(i in 1:num_boostrap_samples){
+    attribute_name = sprintf("Boostrap sample %d", i)
+    tmp.df$attribute_name = attributes(new_species_estimate)[[attribute_name]][1:n]
+    names(tmp.df)[names(tmp.df) == "attribute_name"] <- attribute_name
+  }
+  lower = apply(tmp.df, 1, function(x){quantile(x, 0.025)})
+  upper = apply(tmp.df, 1, function(x){quantile(x, 0.975)})
+  return(data.frame(m=1:n, lower=lower, upper=upper))
+}

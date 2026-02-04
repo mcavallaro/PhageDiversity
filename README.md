@@ -18,3 +18,5 @@ This repository contains software used in reference [1]. Please cite [1] if you 
       - `inext_asymp_plot.R`
       - `histograms.R`
       - `predict_ET_monotone.R`
+	  - `predict_DB24.R`
+	  - `predict_DB24.R`
