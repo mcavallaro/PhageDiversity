@@ -29,7 +29,8 @@ The software is organised as follows.
     - `predict_ET_monotone.R`
     - `predict_DB24.R`
   	- `predict_DB24.R`
-    - `add1Ksampling.R` 
+    - `add1Ksampling.R`
+    - `dump24vs25.R`
     
 On top, we provide the ouput data of these scripts (`.RData` objects). The folder `data/` contains
 the two database snapshots DB24 and DB25 analysed in reference [1].
