@@ -1,3 +1,10 @@
+#' this script allows to predict
+#' how many new species would be in
+#' an additional 1K sampled phages for
+#' an "unknown" species - which we model
+#' as a random of the 8 observed species
+
+
 #' to get make-table-functions 
 source("utils.R")
 library(magrittr)

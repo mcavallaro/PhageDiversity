@@ -17,7 +17,7 @@ source("FPG_estimator.R")
 # import functions for PYP estimates
 source("PYP_estimator.R")
 #' Import validation errors 2025
-load("intval_n500_train5_rawdist_2025c.RData")
+load("intval_n500_train5_rawdist_2025.RData")
 #' import data
 fulltable24 <- read.csv("data/phagesspeciescounts_perhostspec_Sept2024.csv",
                         check.names = FALSE)
@@ -55,7 +55,7 @@ obs_nae <- abs(pred_u_may25 - obs_u_may25)/obs_u_may25
 #' Extract matching NAE 
 valid_err <- valid_res[[h1]][rownames(valid_res[[h1]])=="NAE:",] 
 
-#perform montecarlo test
+#perform Monte Carlo test
 cat(h1,"observed NAE: ",obs_nae,"\n")
 cat(h1,": ",ecdf(c(valid_err[,paste0(s1,":0.pred")],
                    obs_nae))(obs_nae),"\n")
@@ -63,6 +63,7 @@ res_ps[h1,s1] <- ecdf(c(valid_err[,paste0(s1,":0.pred")],
                         obs_nae))(obs_nae)
 obsNE[h1,s1] <- (pred_u_may25 - obs_u_may25)/obs_u_may25
 }}
-                                                       
+
+#save output                                                       
 save(res_ps,obsNE,
-     file="pvalues_dumppred.RData_n500")
+     file="pvalues_dumppred_n500.RData")

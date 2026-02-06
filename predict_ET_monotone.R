@@ -1,7 +1,7 @@
 library(magrittr)
 library(dplyr)
 library(tidyverse)
-# import functions for non-paramteric estimates
+# import functions for non-parametric estimates
 source("nonparam_estimators.R")
 
 # import functions for bootstrap and other utils

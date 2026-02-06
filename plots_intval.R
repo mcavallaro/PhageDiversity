@@ -4,7 +4,7 @@ library(tidyverse)
 
 #' Load data, bring into 
 #' tibble form, only second half 
-load("intval_n500_train5_rawdist_2025c.RData")
+load("intval_n500_train5_rawdist_2025.RData")
 res25 <- bind_cols(valid_res[[1]][501:1000,],
             host=rep(names(valid_res)[1],
             nrow(valid_res[[1]])/2))
@@ -15,7 +15,7 @@ for (i in 2:length(valid_res)){
                         nrow(valid_res[[i]])/2)))
 }
 #' Only retain the NAEs
-load("intval_n500_train5_rawdist_2024c.RData")
+load("intval_n500_train5_rawdist_2024.RData")
 res24 <- bind_cols(valid_res[[1]][501:1000,],
           host=rep(names(valid_res)[1],
                    nrow(valid_res[[1]])/2))
