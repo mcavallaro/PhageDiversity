@@ -1,4 +1,4 @@
-This repository contains software used in reference [1]. Please cite [1] if you find these repositories useful.
+This repository contains software used in reference [1]. Please cite [1] if you find this repository useful.
 
 <p align="center">
 <img src="https://github.com/mcavallaro/PhageDiversity/blob/clean/cover.png?raw=true" alt="" style="width:70%; height:auto;">
@@ -31,6 +31,7 @@ The software is organised as follows.
   	- `predict_DB24.R`
     - `add1Ksampling.R`
     - `dump24vs25.R`
+	- `predict_cover.R`
     
 On top, we provide the ouput data of these scripts (`.RData` objects). The folder `data/` contains
-the two database snapshots DB24 and DB25 analysed in reference [1].
+the two database snapshots DB24 and DB25 (can be read with ` import_data.R`) analysed in reference [1].
