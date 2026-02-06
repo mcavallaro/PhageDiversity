@@ -7,7 +7,7 @@ This repository contains software used in reference [1]. Please cite [1] if you 
 The software is organised as follows.
   
   * General utility functions for working with species distributions.
-    -utils.R
+    - `utils.R`
 
   * Scripts with estimators.
     - `FPG_estimator.R`
@@ -31,5 +31,5 @@ The software is organised as follows.
   	- `predict_DB24.R`
     - `add1Ksampling.R` 
     
-On top, we provide the ouput data of these scripts (`.RData objects`). The folder `data/` contains
+On top, we provide the ouput data of these scripts (`.RData` objects). The folder `data/` contains
 the two database snapshots DB24 and DB25 analysed in reference [1].
