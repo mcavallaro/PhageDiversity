@@ -28,10 +28,14 @@ The software is organised as follows.
     - `histograms.R`
     - `predict_ET_monotone.R`
     - `predict_DB24.R`
-  	- `predict_DB24.R`
+    - `predict_DB25.R`
     - `add1Ksampling.R`
     - `dump24vs25.R`
-	- `predict_cover.R`
+    - `predict_cover.R`
     
 On top, we provide the ouput data of these scripts (`.RData` objects). The folder `data/` contains
 the two database snapshots DB24 and DB25 (can be read with ` import_data.R`) analysed in reference [1].
+
+[1] "How many phage species remain undiscovered? Species sampling approaches to inform phage discovery"
+Massimo Cavallaro, Andrew Kinsella, Spyridon Megremis, Andrew Morozov, Andrew D. Millard, Fabian Freund
+*bioRxiv* 2026.02.15.704868; doi: \[https://doi.org/10.64898/2026.02.15.704868][https://doi.org/10.64898/2026.02.15.704868]
