@@ -38,4 +38,4 @@ the two database snapshots DB24 and DB25 (can be read with ` import_data.R`) ana
 
 [1] "How many phage species remain undiscovered? Species sampling approaches to inform phage discovery"
 Massimo Cavallaro, Andrew Kinsella, Spyridon Megremis, Andrew Morozov, Andrew D. Millard, Fabian Freund
-*bioRxiv* 2026.02.15.704868; doi: \[https://doi.org/10.64898/2026.02.15.704868][https://doi.org/10.64898/2026.02.15.704868]
+*bioRxiv* 2026.02.15.704868; doi:[10.64898/2026.02.15.704868](https://doi.org/10.64898/2026.02.15.704868)
