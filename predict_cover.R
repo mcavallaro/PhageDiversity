@@ -35,6 +35,7 @@ for (n1 in host_names ){
   freq_table<-getFrequencyTable(speccounts)
   cat("\n", n1)
   n_actual_species = sum(freq_table)
+
   cat(". n of species: ", sum(freq_table), " ", length(speccounts))
   m =  c(freq_table %*% as.numeric(names(freq_table)))
   cat(". n of isolates: ", m, " ", length(spec_byhost_l[[n1]][[1]]), " ", sum(speccounts))
@@ -73,11 +74,11 @@ labels<-data1 %>% group_by(host) %>% slice_tail(n=1)
 
 data1 |> ggplot() + geom_line(
     linewidth = 1,
-    aes(x = m, y = value, colour = host)
-  ) +
-  geom_text_repel(
+    aes(x = m + n, y = value, colour = host)
+  ) + scale_x_log10() +
+   geom_text_repel(
     data = labels,
-    aes(x = m, y = value, label = host),
+    aes(x = m + n, y = value, label = host),
     box.padding = 0.1,
     point.padding = 0.5,
     max.overlaps = Inf,
@@ -85,7 +86,7 @@ data1 |> ggplot() + geom_line(
     fontface = "italic",
     size = 6
   ) +
-  labs(y = "Number of phage species per host", x = "Number of future individuals observed (sampling effort)") + 
+  labs(y = "Number of phage species per host", x = "Number of individuals observed + number of future observations (sampling effort)") + 
   theme_minimal() + 
   theme(legend.position = "none",
         axis.title = element_text(size = 16),
