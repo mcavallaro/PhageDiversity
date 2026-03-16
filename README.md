@@ -1,7 +1,7 @@
 This repository contains software used in reference [1]. Please cite [1] if you find this repository useful.
 
 <p align="center">
-<img src="https://github.com/mcavallaro/PhageDiversity/blob/clean/cover.png?raw=true" alt="" style="width:70%; height:auto;">
+<img src="https://github.com/mcavallaro/PhageDiversity/blob/master/cover.png?raw=true" alt="" style="width:70%; height:auto;">
 </p>
 
 The software is organised as follows.
