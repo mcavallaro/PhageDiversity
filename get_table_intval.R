@@ -29,13 +29,9 @@ table(t1$bestmod)
 tapply(t1$bestmod,t1$training,table)
 
 #' Mean errors via training/validation ratio and estimator
-plotd_24 |> group_by(training,stat) |> summarise(mean(value)) |>
-  View()
-plotd_25 |> group_by(training,stat) |> summarise(mean(value)) |>
-  View()
-#' only for ET
+plotd_24 |> group_by(training,stat) |> summarise(mean(value,na.rm=TRUE))
 plotd_25 |> group_by(training,stat) |> 
-  summarise(m= mean(value)) |> filter(stat=="ET") |> select(training,m)
+  summarise(m= mean(value,na.rm=TRUE)) |> filter(stat=="ET") |> select(training,m)
 
 #' Compute Wilcoxon tests
 wilcx_p <- matrix(-1,nrow=length(unique(plotd_25$host)),
@@ -48,7 +44,7 @@ for (h1 in unique(plotd_25$host)){
 #if (h1=="Streptococcus" & t2=="0.25"){next}
 wilcx_p[h1,t2] <- try(as.numeric(wilcox.test(x = plotd_25$value[plotd_25$host==h1 &
                                      plotd_25$training==t2 &
-                                     plotd_25$stat=="ET"],
+                                     plotd_25$stat=="SGT"],
                 y = plotd_25$value[plotd_25$host==h1 &
                                      plotd_25$training==t2 &
                                      plotd_25$stat=="FPG"])$p.value),
