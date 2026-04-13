@@ -18,13 +18,19 @@ source("FPG_estimator.R")
 source("PYP_estimator.R")
 #' Import validation errors 2025
 load("intval_n500_train5_rawdist_2025.RData")
+load("intval_sgt_n500_train5_rawdist_2025.RData")
+#' Join valid errors
+for (n1 in names(valid_res)){
+valid_res[[n1]] <- cbind(valid_res[[n1]],valid_res_sgt[[n1]])  
+}
 #' import data
 fulltable24 <- read.csv("data/phagesspeciescounts_perhostspec_Sept2024.csv",
                         check.names = FALSE)
 fulltable25 <- read.csv("data/3May2025_data.tsv",sep = "\t")
 fulltable25 <- fulltable25 |> mutate("in2024"=(Accession %in% fulltable24$Accession))
-stats <- c("GT","ET","FPG","PYP")
-species_analysed <- names(valid_res) 
+stats <- c("SGT","ET","FPG","PYP")
+species_analysed <- names(valid_res)
+
 res_ps <- matrix(-1,nrow = length(species_analysed),
                  ncol=length(stats),
                  dimnames = list(species_analysed,stats))
@@ -41,7 +47,7 @@ freq_table<-getFrequencyTable(speccounts)
 M <- extractM(speccounts)
 
 pred_u_may25 <- switch(s1,
-  "GT"=good_toulmin(freq_table = freq_table,
+  "SGT"=SGT(freq_table = freq_table,
                           m=new_isos),
   "ET"=efron_thisted(freq_table = freq_table,
                      m=new_isos),

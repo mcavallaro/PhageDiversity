@@ -10,7 +10,7 @@ load("plot_data.RData")
 
 #' extract estimator with lowest mean errors 
 testf <- function(v,w){v[which(w==min(w))]}
-meanerr <- plotd_24 |> 
+meanerr <- plotd_24 |> filter(!(stat=="GT")) |>
   group_by(host,training,stat) |> 
   summarise(sum1=mean(value)) 
 t1 <- meanerr |> reframe(bestmod=testf(stat,sum1))
@@ -19,7 +19,7 @@ cat("2024")
 table(t1$bestmod) 
 tapply(t1$bestmod,t1$training,table)
 
-meanerr <- plotd_25 |> filter() |> 
+meanerr <- plotd_25 |> filter(!(stat=="GT")) |> 
   group_by(host,training,stat) |> 
   summarise(sum1=mean(value)) 
 t1 <- meanerr |> reframe(bestmod=testf(stat,sum1))

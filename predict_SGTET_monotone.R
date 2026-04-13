@@ -60,8 +60,9 @@ for (n1 in host_names ){
   cat(". n of isolates: ", m, " ", length(spec_byhost_l[[n1]][[1]]), " ", sum(speccounts))
   m = seq(1, m * 1.3)
 
-  temp1<-SGT(freq_table, m)
-
+  temp1 <- SGT(freq_table, m)
+  temp2 <- efron_thisted(freq_table,m)
+  
   make_est_m<-function(v){vm <- v
                           vm[1] <- max(0,v[1]) 
                           vm[2] <- min(max(vm[1],v[2]), 2*vm[1]) 
@@ -73,7 +74,9 @@ for (n1 in host_names ){
 
   t1<-tibble(m = m,
              SGT = temp1,
+             ET = temp2,
              "mod. SGT" = make_est_m(temp1),
+             "mod. ET" = make_est_m(temp2),
              "host" = rep(n1, length(m)),
              n = length(spec_byhost_l[[n1]][[1]]))
   
@@ -83,41 +86,25 @@ for (n1 in host_names ){
   t1<-t1 |> mutate(m = as.integer(m))
   t1<-t1 |> mutate(estim. = factor(estim.))
 
- #Make boostrap for different m
- bt_SGT <- function(){
-   bt1<-sample(speccounts, length(speccounts), 
-               replace=T)
-   freqtab<-getFrequencyTable(bt1)
-   out1 <- SGT(freqtab, m)
-   out2<-make_est_m(out1)
-   return(c(out1, out2))
-  }
-  bt_SGT_df<-replicate(100, bt_SGT(), simplify = TRUE)
-  bt_SGT_qu<-t(apply(bt_SGT_df, 1,
-        function(v){quantile(v,probs=c(0.025,0.975))}))
-
-  bt_SGT_qu2<-tibble(qlow = bt_SGT_qu[,1],
-                    qhigh = bt_SGT_qu[,2],
-                    m2 = rep(m,2),
-                    estim. = c(rep("SGT", length(m)), 
-                               rep("mod. SGT", length(m)))
-                    )
-  bt_SGT_qu2 <- bt_SGT_qu2 |> rename(m=m2)
-  t1<-inner_join(t1, bt_SGT_qu2, by = c("m", "estim."))
-  new_species_SGT <- bind_rows(new_species_SGT, t1)
+  new_species_SGT <- bind_rows(new_species_SGT,t1)
 }
 
-data1<-new_species_SGT
-data1 |> ggplot() + geom_line(aes(x = m,y = value,
+data1 <- new_species_SGT
+plt1 <- data1 |> ggplot() + geom_line(aes(x = m,y = value,
                               colour = estim.)) +
-  geom_ribbon(aes(x = m, ymin = qlow, ymax = qhigh,
-                  colour = estim.), fill = NA,
-              alpha = 85, linetype = 3) +
         geom_vline(aes(xintercept = n),
                    linetype = 2
                    ) +
-  labs(y="#predicted species") + 
-  facet_wrap(facet=vars(host),
-             nrow=4,ncol=2,scales="free")
+  labs(y="#predicted species") 
+
+pdf('predict_newspec_SGET_1plotpage.pdf') 
+for (i in 1:8){
+  print(plt1 + facet_wrap_paginate(facet=vars(host),
+                                   nrow=1,ncol=1,
+                                   scales="free",
+                                   page = i))
+}
+dev.off() 
     
-ggsave(filename = "predict_new_sgt.pdf")
+#ggsave(filename = "predict_new_sgt_et_nobt.pdf")
+

@@ -58,8 +58,7 @@ plotd |> filter(value>2) |>
 #' plot: facets=hosts, no GT for 0.25 and 3.5
 #' remove the single > 2 value
 ggplot(data = plotd |> 
-         filter(!(training %in% c("0.25","0.35") &
-                  stat=="GT")) |> 
+         filter(!(stat=="GT")) |> 
          filter(value<=2),
        aes(x=training,y=value,fill=stat)) + 
   geom_boxplot(outlier.size = .4,outliers=plotout) + 
@@ -74,8 +73,7 @@ ggsave(paste0("intval_2024_byhost",bp_suffix,".pdf"),
 
 #' same plot, by stats, across training sizes
 ggplot(data = plotd |> 
-         filter(!(training %in% c("0.25","0.35") &
-                    stat=="GT")) |> 
+         filter(!(stat=="GT")) |> 
          filter(value<=2),
        aes(x=host,y=value,fill=training)) + 
   geom_boxplot(outlier.size = .4,outliers=plotout) + 
@@ -112,8 +110,7 @@ plotd |> filter(value>2) |>
 #' result: only GT for 0.25 and 3.5 
 #' plot: facets=hosts, no GT for 0.25 and 3.5
 ggplot(data = plotd |> 
-         filter(!(training %in% c("0.25","0.35") &
-                    stat=="GT")),
+         filter(!(stat=="GT")),
        aes(x=training,y=value,fill=stat)) + 
   geom_boxplot(outlier.size = .4,outliers = plotout) + 
   labs(title = 2025,
