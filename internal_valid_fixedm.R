@@ -137,7 +137,7 @@ source("nonparam_estimators.R")
 # import functions for parametric estimates
 source("FPG_estimator.R")
 # import functions for PYP estimates
-source("PYP_estimator.R")
+#source("PYP_estimator.R")
 # import functions for bootstrap and other utils
 #source("utils.R")
 #source("2025data.R")
@@ -192,12 +192,12 @@ trainsize <- c(200,300,400,500)
 
 
 #' ET (safety and sanity)
-temp1 <- sapply(trainsize,function(s1){intval2(estim1=efron_thisted,m=m,
+temp1 <- sapply(trainsize,function(s1){intval2(estim1=SGT,m=m,
          trainsize = s1,
          M = freq_table,
          type = "freq_table",n = valreps,out = "rawdist")},
   simplify = "matrix")
-colnames(temp1) <- paste0("ET:",trainsize,"_",m)
+colnames(temp1) <- paste0("SGT:",trainsize,"_",m)
 valid_res[[i]] <- cbind(valid_res[[i]],temp1)
 #' FisherPoissonGamma
 temp1 <- sapply(trainsize,function(s1){
