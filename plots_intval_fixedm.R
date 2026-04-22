@@ -25,7 +25,7 @@ plotd <- plotd |> separate_wider_delim(cols = stat,delim = ":",
 
 plotd <- plotd |> separate_wider_delim(cols = training,delim = "_",
                                        names = c("# training","# predicted"))
-
+plotd$stat[plotd$stat=="SGT"] <- "OGT" #Binomial smoothened GT via Orlitsky et al 2016
 ps1 <- vector("list",length=length(valid_res))
 names(ps1) <- names(valid_res)
 for (n1 in names(ps1)){

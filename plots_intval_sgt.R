@@ -37,15 +37,18 @@ for (i in 2:length(valid_res)){
 }
 
 #' Prepare for plots
-plotout <- TRUE#FALSE#set whether to plot outliers
+plotout <- FALSE#set whether to plot outliers
 bp_suffix <- ifelse(plotout,"","_noout")
 #' 24 
 plotd <- res24 |> pivot_longer(cols = !host,names_to = "stat",
                                values_to = "value")
 plotd <- plotd |> separate_wider_delim(cols = stat,delim = ":",
                                        names = c("stat","training"))
+plotd$stat[plotd$stat=="SGT"] <- "OGT" #Binomial smoothened GT
+
 plotd <- plotd |>  mutate(stat = fct_relevel(stat, 
-                                             c("GT","ET","SGT","PYP","FPG")))
+                                             c("GT","ET","OGT","PYP","FPG")))
+
 #' Check: which values are NA
 plotd |> filter(is.na(value)) |> 
   group_by(host,stat,training) |> count()
@@ -96,8 +99,9 @@ plotd <- res25 |> pivot_longer(cols = !host,names_to = "stat",
                                values_to = "value")
 plotd <- plotd |> separate_wider_delim(cols = stat,delim = ":",
                                        names = c("stat","training"))
+plotd$stat[plotd$stat=="SGT"] <- "OGT" #Binomial smoothened GT
 plotd <- plotd |>  mutate(stat = fct_relevel(stat, 
-                                             c("GT","ET","SGT","PYP","FPG")))
+                                             c("GT","ET","OGT","PYP","FPG")))
 plotd <- plotd |>  filter(training!="0.pred")
 
 #' Check: which values are NA

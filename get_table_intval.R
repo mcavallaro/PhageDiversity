@@ -44,7 +44,7 @@ for (h1 in unique(plotd_25$host)){
 #if (h1=="Streptococcus" & t2=="0.25"){next}
 wilcx_p[h1,t2] <- try(as.numeric(wilcox.test(x = plotd_25$value[plotd_25$host==h1 &
                                      plotd_25$training==t2 &
-                                     plotd_25$stat=="SGT"],
+                                     plotd_25$stat=="OGT"],
                 y = plotd_25$value[plotd_25$host==h1 &
                                      plotd_25$training==t2 &
                                      plotd_25$stat=="FPG"])$p.value),
