@@ -1,7 +1,7 @@
 library(magrittr)
 library(dplyr)
 library(tidyverse)
-#library(iNEXT) #For intra- and extrapolation
+library(iNEXT) #For intra- and extrapolation
 library(vegan)
 # import functions for non-parametric estimates
 source("nonparam_estimators.R")
@@ -82,6 +82,8 @@ for (n1 in host_names ){
   #' 3rd option: subsampling 100 samples for 
   #' some sizes, let's take jumps of 25
   #' which means ~ 40 to ~ 100 sizes
+  #' We will focus on the first 20 classes
+  #' as in 
 
 #' 
 raref_count <- function(k,specv){
@@ -113,21 +115,40 @@ raref_c <- tibble(steps=
 #ev <- log(specacc$individuals)
 #resp <- specacc$sites
 
-#lm1 <- lm(log(subsamp_specc) ~ log(steps),data=raref_c)
-lm1 <- lm(subsamp_specc ~ log(steps),data=raref_c)
+lm0 <- lm(subsamp_specc ~ log(steps),data=raref_c)
+lm1 <- lm(log(subsamp_specc) ~ log(steps),data=raref_c)
 lm1$coefficients
+sloglm_specacc <- function(x,addpresent=FALSE){
+  t1 <- ifelse(addpresent,sum(speccounts),0)
+  lm0$coefficients[2]*log(x+t1)+lm0$coefficients[1]}
 loglm_specacc <- function(x,addpresent=FALSE){
   t1 <- ifelse(addpresent,sum(speccounts),0)
-#  exp(lm1$coefficients[2]*log(x+t1)+lm1$coefficients[1])}
-lm1$coefficients[2]*log(x+t1)+lm1$coefficients[1]}
+  exp(lm1$coefficients[2]*log(x+t1)+lm1$coefficients[1])}
+#lm1$coefficients[2]*log(x+t1)+lm1$coefficients[1]}
+
+#' assess fit of log and log-log models for
+#' subsampled data
+pdf(paste0("lmfits_logmodels_",n1,".pdf"))
 plot(raref_c$steps,raref_c$subsamp_specc,
      main=paste(n1,": fit semi-log to SAC"))
 curve(from=1,
       to=sum(speccounts),
       expr = loglm_specacc,
-      add=TRUE)
+      add=TRUE,col="red")
+curve(from=1,
+      to=sum(speccounts),
+      expr = sloglm_specacc,
+      add=TRUE,col="blue")
+dev.off()
+
 temp3 <- loglm_specacc(m,
                        addpresent = TRUE)
+temp4 <- sloglm_specacc(m,
+                        addpresent = TRUE)
+#' Add reimplementation of Ugland's approach
+source("ugland_logmodel.R")
+temp5 <- fit_slog_spec(freq_table = freq_table,
+                       m=m)
 
 make_est_m<-function(v){vm <- v
                           vm[1] <- max(0,v[1]) 
@@ -141,7 +162,9 @@ make_est_m<-function(v){vm <- v
   t1<-tibble(m = m,
              FPG = sum(freq_table) + temp2,
              "cm-mod. OGT" = sum(freq_table) + make_est_m(temp1),
-             "log model" = temp3, 
+             "loglog model" = temp3, 
+             "log(sample size) model" = temp4,
+             "Ugland's semilog" = temp5,
              "host" = rep(n1, length(m)),
              n = length(spec_byhost_l[[n1]][[1]]))
   
