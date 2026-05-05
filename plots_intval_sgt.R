@@ -24,9 +24,10 @@ for (i in 2:length(valid_res)){
 #' Only retain the NAEs
 load("intval_sgt_n500_train5_rawdist_2024.RData")
 load("intval_n500_train5_rawdist_2024.RData")
+
 res24 <- bind_cols(valid_res[[1]][501:1000,],
                    valid_res_sgt[[1]][501:1000,],
-          host=rep(names(valid_res)[1],
+                   host=rep(names(valid_res)[1],
                    nrow(valid_res[[1]])/2))
 for (i in 2:length(valid_res)){
   res24 <- bind_rows(res24,

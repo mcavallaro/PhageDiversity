@@ -75,3 +75,18 @@ SGT <-  function(freq_table, m) {
   unseen = ifelse(unseen < 0, 0, unseen)
   return(unseen)
 }
+#' Chao Jost estimator (Eq. 7 and 8)
+#' from Chao and Jost (2012, Ecology)
+#' We use Chao I as asymptotic estimator
+
+ChaoJost <- function(freq_table, m){
+n <- c(freq_table %*% as.numeric(names(freq_table))) #sample size
+f1 <- unname(freq_table["1"])
+f2 <- unname(freq_table["2"])
+f0h <- (n-1)/n*f1 #chaoI 
+f0h <- f0h*ifelse(is.na(f2),
+                  (f1-1)/2,
+                  f1/(2*f2))
+cj <- sum(freq_table) + f0h*(1-(1-f1/(n*f0h+f1))^m)
+return(cj)
+}
