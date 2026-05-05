@@ -2,7 +2,6 @@ library(magrittr)
 library(dplyr)
 library(tidyverse)
 library(iNEXT) #For intra- and extrapolation
-library(vegan)
 # import functions for non-parametric estimates
 source("nonparam_estimators.R")
 # import FPG estimator
@@ -57,6 +56,8 @@ for (n1 in host_names ){
   # speccounts <- as.vector(unname(table(spec_byhost_l[[n1]])))
   speccounts<-getSpeciesCount(spec_byhost_l[[n1]])
   freq_table<-getFrequencyTable(speccounts)
+  spec_abund <- spec_byhost_l[[n1]] %>% table() %>% sort(decreasing = T) %>% as.numeric()
+  
   cat("\n", n1)
   cat(". n of species: ", sum(freq_table), " ", length(speccounts))
   m =  c(freq_table %*% as.numeric(names(freq_table)))
@@ -66,20 +67,19 @@ for (n1 in host_names ){
   temp1 <- SGT(freq_table, m)
   temp2 <- FisherPoissonGammaWrapper(freq_table,m)
   #' add iNEXT rarefication curve
-  raref_c1 <- iNEXT(x = freq_table,
-                   endpoint = sum(speccounts),
-                   size = seq(1,sum(speccounts),5),
+  raref_c1 <- iNEXT(x = spec_abund,
+                    q = 0,
+                   endpoint = sum(speccounts) + max(m),
+                   size = (m + sum(speccounts)),
                    se = 0)
+  temp6 <- raref_c1$iNextEst$size_based$qD
+  temp6 <- temp6[raref_c1$iNextEst$size_based$m %in% (m + sum(speccounts))]
   #' raref_c$iNextEst$size_based$qD is the
   #' allelic richness estimates (q=0
   #' Hill numbers) for the 
   #' rarefied species accumulation curve. 
-  #' We fit a log-linear model (resp ~ log(EV)) 
-  #' to this
-  #' UPDATE: Hill numbers are strange, 
-  #' we use the vegan specaccum
-  #' which also does not work
-  #' 3rd option: subsampling 100 samples for 
+  #' We compare to their extrapolation
+  #' 2nd option: subsampling 100 samples for 
   #' some sizes, let's take jumps of 25
   #' which means ~ 40 to ~ 100 sizes
   #' We will focus on the first 20 classes
@@ -165,6 +165,7 @@ make_est_m<-function(v){vm <- v
              "loglog model" = temp3, 
              "log(sample size) model" = temp4,
              "Ugland's semilog" = temp5,
+             "iNEXT extrapolation" = temp6,
              "host" = rep(n1, length(m)),
              n = length(spec_byhost_l[[n1]][[1]]))
   
