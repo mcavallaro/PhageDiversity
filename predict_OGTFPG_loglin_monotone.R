@@ -118,7 +118,9 @@ raref_c <- tibble(steps=
 lm0 <- lm(subsamp_specc ~ log(steps),data=raref_c)
 lm1 <- lm(log(subsamp_specc) ~ log(steps),data=raref_c)
 lm1$coefficients
-sloglm_specacc <- function(x,addpresent=FALSE){
+sloglm_specacc <- function(x,
+                           addpresent=FALSE,
+                           correct1){
   t1 <- ifelse(addpresent,sum(speccounts),0)
   lm0$coefficients[2]*log(x+t1)+lm0$coefficients[1]}
 loglm_specacc <- function(x,addpresent=FALSE){
@@ -142,9 +144,15 @@ curve(from=1,
 dev.off()
 
 temp3 <- loglm_specacc(m,
-                       addpresent = TRUE)
+                       addpresent = TRUE) -
+          loglm_specacc(0,
+                         addpresent = TRUE) +
+         sum(freq_table)
 temp4 <- sloglm_specacc(m,
-                        addpresent = TRUE)
+                        addpresent = TRUE) -
+  sloglm_specacc(0,
+                addpresent = TRUE) +
+  sum(freq_table)
 #' Add reimplementation of Ugland's approach
 source("ugland_logmodel.R")
 temp5 <- fit_slog_spec(freq_table = freq_table,

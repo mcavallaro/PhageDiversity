@@ -8,7 +8,9 @@ fit_slog_spec <- function(freq_table,
                           m,
                           cutoff=20,
                           show_lm=FALSE,
-                          out="test1"){
+                          out="test1",
+                          correct=TRUE,
+                          onlym=TRUE){
 #' Step 1: log-log fit of  species count
 #' we take cutoff before the first 0
 counts1 <- unname(freq_table[as.character(1:cutoff)])
@@ -50,9 +52,19 @@ Llm_data <- data.frame(a,L=sapply(a,L2))
 logLlm <- lm(L~log(a),data=Llm_data)
 cat("R2 semilog L:",summary(logLlm)$r.squared,"\n")
 Llm_coeff <- unname(logLlm$coefficients)
+#' Add correction term that model starts
+#' in S for a=A
+correct1 <- 0
+if (correct){
+correct1 <- S*(ksum^(-1)*(Llm_coeff[2]*log(A)+Llm_coeff[1]))
+}
 for (m1 in m){
 a <- A + m1
-est[as.character(m1)] <- S*(1-ksum^(-1)*(Llm_coeff[2]*log(a)+Llm_coeff[1]))
+est[as.character(m1)] <- S*(1-ksum^(-1)*(Llm_coeff[2]*log(a)+Llm_coeff[1])) + correct1
 }
+#to compare with unseen species estimators, 
+#we only record the additional species
+#if onlym=TRUE
+if (onlym){est <- est - S}
 return(est)
 }

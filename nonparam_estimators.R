@@ -78,6 +78,9 @@ SGT <-  function(freq_table, m) {
 #' Chao Jost estimator (Eq. 7 and 8)
 #' from Chao and Jost (2012, Ecology)
 #' We use Chao I as asymptotic estimator
+#' As we want the additional species
+#' we subtract the # species
+#' in the sample of size n
 
 ChaoJost <- function(freq_table, m){
 n <- c(freq_table %*% as.numeric(names(freq_table))) #sample size
@@ -88,5 +91,5 @@ f0h <- f0h*ifelse(is.na(f2),
                   (f1-1)/2,
                   f1/(2*f2))
 cj <- sum(freq_table) + f0h*(1-(1-f1/(n*f0h+f1))^m)
-return(cj)
+return(cj - sum(freq_table))
 }

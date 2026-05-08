@@ -97,9 +97,8 @@ summaryna <- function(v){
 intval <- function(estim1=BalocchiPYPWrapper,
                    trainsize,M,
                    type="Mrn",n=10,
-                   out="raw",
-                   signed_err=FALSE){
-res <- cbind("abs_err"=rep(-1,n),
+                   out="raw"){
+res <- cbind("signed_err"=rep(-1,n),
              "NAE"=rep(-1,n))
 raw1 <- cbind("true"=rep(-1,n),
               "estim"=rep(-1,n))
@@ -119,7 +118,6 @@ if (out=="raw"){
   raw1[i,1] <- split1$val_n_speccount  
 } else {
 res[i,1] <- estim_val-split1$val_n_speccount
-if (signed_err){res[i,1] <- abs(res[i,1])}
 res[i,2] <- abs(estim_val-split1$val_n_speccount)/split1$val_n_speccount}
 }
 out1 <- switch(out,
@@ -133,15 +131,8 @@ return(out1)
 #' Example analysis
 library(magrittr)
 library(dplyr)
-# import functions for non-parametric estimates
-source("nonparam_estimators.R")
-# import functions for parametric estimates
-source("FPG_estimator.R")
-# import functions for PYP estimates
-source("PYP_estimator.R")
-# import functions for bootstrap and other utils
-#source("utils.R")
-#source("import_data.R")
+# import Ugland-type semilog model 
+source("ugland_logmodel.R")
 
 #' import data
 fulltable24 <- read.csv("data/phagesspeciescounts_perhostspec_Sept2024.csv",
@@ -156,8 +147,7 @@ sum(fulltable25 |> filter(Host==h1)|> select(in2024)),
 "vs 2024: ",nrow(fulltable24 |> filter(Host==h1)),"\n")
 }
 #Perform internal validations
-set.seed(14) #for reproducibility
-for (yr in c(2024,2025)){
+yr <- 2025
 #' we are running the analysis for the 2025 table
 #spec_byhost <- fulltable |> select(Host, `Phage Species`) |> nest_by(Host)
   if (yr==2024){
@@ -177,41 +167,36 @@ samples_1K <- c("Escherichia","Klebsiella",
 
 #' run validation
 #' 
-valid_res_sgt <- vector("list",length = length(samples_1K))
-names(valid_res_sgt) <- samples_1K
+valid_res_u <- vector("list",length = length(samples_1K))
+names(valid_res_u) <- samples_1K
 
 valreps <- 500#50
 
 for (i in seq(along=samples_1K)){
 n1 <- samples_1K[i]
-trainfrac <- c(0.8,0.65,0.5,0.35,0.25)
+trainfrac <- 0.8
 speccounts<-getSpeciesCount(spec_byhost_l[[n1]])
 freq_table<-getFrequencyTable(speccounts)
-M <- extractM(speccounts)
+#M <- extractM(speccounts)
 #' approx. 80%,... for training
 trainsize <- ceiling(nosamples_host[n1]*trainfrac)
-#' add actual size from 2024 as training size
-if (yr==2025){
-  obs_2024 <- fulltable25 |> filter(Host==n1,in2024==TRUE) |> nrow()  
-  trainsize <- c(trainsize,obs_2024)
-  trainfrac <- c(trainfrac,"0.pred")#for naming later 
-}
-#' SGT (lamba <= 1 GT, then binomial smoothing)
-valid_res_sgt[[i]] <- sapply(trainsize,function(s1){
-                        intval(estim1=SGT,trainsize = s1,
+
+#' Ugland's semilog "estimator"
+valid_res_u[[i]] <- sapply(trainsize,function(s1){
+                        intval(estim1=fit_slog_spec,
+                               trainsize = s1,
                         M = freq_table,type = "freq_table",
                         n = valreps,out = "rawdist" 
                         )},simplify = "matrix")
 
-rownames(valid_res_sgt[[i]]) <-  c(rep("abs_err",valreps),
+rownames(valid_res_u[[i]]) <-  c(rep("abs_err",valreps),
                                rep("NAE:",valreps))
   
                              #c(rep("true",valreps),
                              #rep("estim",valreps))
                              
-colnames(valid_res_sgt[[i]])[1:length(trainfrac)] <- paste0("SGT:",trainfrac)
+colnames(valid_res_u[[i]])[1:length(trainfrac)] <- paste0("semilog:",trainfrac)
 
 }
-save(valid_res_sgt,
-     file = paste0("intval_sgt_n",valreps,"_train5_rawdist_",yr,".RData"))
-}
+save(valid_res_u,
+     file = paste0("intval_u_n",valreps,"_08_rawdist_",yr,".RData"))
