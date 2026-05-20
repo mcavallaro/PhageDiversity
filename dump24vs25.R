@@ -19,16 +19,18 @@ source("PYP_estimator.R")
 #' Import validation errors 2025
 load("intval_n500_train5_rawdist_2025.RData")
 load("intval_sgt_n500_train5_rawdist_2025.RData")
+load("intval_cj_n500_train5_rawdist_2025.RData")
 #' Join valid errors
 for (n1 in names(valid_res)){
 valid_res[[n1]] <- cbind(valid_res[[n1]],valid_res_sgt[[n1]])  
+valid_res[[n1]] <- cbind(valid_res[[n1]],valid_res_cj[[n1]])
 }
 #' import data
 fulltable24 <- read.csv("data/phagesspeciescounts_perhostspec_Sept2024.csv",
                         check.names = FALSE)
 fulltable25 <- read.csv("data/3May2025_data.tsv",sep = "\t")
 fulltable25 <- fulltable25 |> mutate("in2024"=(Accession %in% fulltable24$Accession))
-stats <- c("SGT","ET","FPG","PYP")
+stats <- c("SGT","ET","ChaoJost","FPG","PYP")
 species_analysed <- names(valid_res)
 
 res_ps <- matrix(-1,nrow = length(species_analysed),
@@ -54,7 +56,9 @@ pred_u_may25 <- switch(s1,
   "FPG"=FisherPoissonGammaWrapper(freq_table = freq_table,
                                   m = new_isos),
   "PYP"=BalocchiPYPWrapper(M=M,
-                                              m = new_isos))
+                           m = new_isos),
+  "ChaoJost"=ChaoJost(freq_table = freq_table,
+                      m=new_isos))
 obs_u_may25 <- length(setdiff(unique(data1$vOTU),
                        unique(data1$vOTU[data1$in2024])))
 obs_nae <- abs(pred_u_may25 - obs_u_may25)/obs_u_may25

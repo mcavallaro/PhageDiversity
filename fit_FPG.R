@@ -18,7 +18,7 @@ names(spec_byhost_l) <- spec_byhost$Host
 df = data.frame(matrix(data=NA, ncol=4, nrow=0))
 names(df) = c("x","y", "z", "host")
 
-for (i in 1:6){
+for (i in 1:8){
   n1 = host_names[i]
   speccounts<-getSpeciesCount(spec_byhost_l[[n1]])
   freq_table<-getFrequencyTable(speccounts)
@@ -46,4 +46,4 @@ ggplot() +
   scale_y_log10(limits = range(df[df$z=='Observed',]$y)) +
   facet_wrap(vars(host), ncol=2) + labs(color='')
 
-
+ggsave("fit_fpg.pdf")

@@ -89,23 +89,23 @@ cappf <- function(tab1,capped=24){
   df <- bind_rows(df,C)
 }
 df1 <- df #for debugging
-
-df <- 
+save(df,file="fit_PYP.RData")
+#df <- 
 df |> pivot_longer(f1:`f25+`,
                    names_to = "count class",
                    values_to = "count") 
 df$`count class` <- factor(df$`count class`,
                            levels=c(paste0("f",1:24),"f25+"))
 
+df2 <- 
+  df |> group_by(host,type,`count class`) |> 
+  summarise(med=median(count))
 
-ggplot() +
-  geom_point(data = df[df$type=='observed',],
-             aes(`count class`,count),
-             colour="blue",shape=2) + 
-  geom_boxplot(data = df[df$type=='from fitted',],
-               aes(x=`count class`,y=count)) +
+ggplot(data=df2) +
+  geom_point(aes(x=`count class`,y=med,
+                 colour=type,shape=type)) + 
   facet_wrap(vars(host),nrow=4,ncol=2) + 
-  scale_y_log10() +
+  scale_y_sqrt() +
   labs(x = "Phage species count", y = "Frequency") +
   theme_minimal() 
 
