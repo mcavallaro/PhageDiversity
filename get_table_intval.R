@@ -63,29 +63,30 @@ plotd_24 |> group_by(training,stat,host) |>
 
 
 #' Compute Wilcoxon tests OSW vs. FPG
-wilcx_p <- matrix(-1,nrow=length(unique(plotd_25$host)),
-                     ncol=length(unique(plotd_25$training)),
-                     dimnames=list(unique(plotd_25$host),
-                                   unique(plotd_25$training)))
-                               
-for (h1 in unique(plotd_25$host)){
-  for (t2 in unique(plotd_25$training)){
-#if (h1=="Streptococcus" & t2=="0.25"){next}
-wilcx_p[h1,t2] <- try(as.numeric(wilcox.test(x = plotd_25$value[plotd_25$host==h1 &
-                                     plotd_25$training==t2 &
-                                     plotd_25$stat=="OGT"],
-                y = plotd_25$value[plotd_25$host==h1 &
-                                     plotd_25$training==t2 &
-                                     plotd_25$stat=="FPG"])$p.value),
-                TRUE)
-cat("host",h1,", train",t2,":",wilcx_p[h1,t2],"\n")
-  }}
+#wilcx_p <- matrix(-1,nrow=length(unique(plotd_25$host)),
+#                     ncol=length(unique(plotd_25$training)),
+#                     dimnames=list(unique(plotd_25$host),
+#                                   unique(plotd_25$training)))
+#                               
+#for (h1 in unique(plotd_25$host)){
+#  for (t2 in unique(plotd_25$training)){
+##if (h1=="Streptococcus" & t2=="0.25"){next}
+#wilcx_p[h1,t2] <- try(as.numeric(wilcox.test(x = plotd_25$value[plotd_25$host==h1 &
+#                                     plotd_25$training==t2 &
+#                                     plotd_25$stat=="OGT"],
+#                y = plotd_25$value[plotd_25$host==h1 &
+#                                     plotd_25$training==t2 &
+#                                     plotd_25$stat=="FPG"])$p.value),
+#                TRUE)
+#cat("host",h1,", train",t2,":",wilcx_p[h1,t2],"\n")
+#  }}
 
-knitr::kable(wilcx_p,digits = 3,format = "latex")
+#knitr::kable(wilcx_p,digits = 3,format = "latex")
 
-sum(p.adjust(wilcx_p,"holm")<0.05)/(nrow(wilcx_p)*ncol(wilcx_p))
+#sum(p.adjust(wilcx_p,"holm")<0.05)/(nrow(wilcx_p)*ncol(wilcx_p))
 
 #' Compute Wilcoxon tests for OSW vs. FPG and ET
+#' DB25
 wilcx_p2 <- matrix(-1,nrow=length(unique(plotd_25$host)),
                   ncol=length(unique(plotd_25$training)),
                   dimnames=list(unique(plotd_25$host),
@@ -119,3 +120,41 @@ knitr::kable(wilcx_p2,digits = 3,format = "latex")
 
 sum(p.adjust(wilcx_p2,"holm")<0.05)/(nrow(wilcx_p2)*ncol(wilcx_p2))
 diffs_in_median |> sign() |> table()
+
+#' DB24
+wilcx_p2 <- matrix(-1,nrow=length(unique(plotd_24$host)),
+                   ncol=length(unique(plotd_24$training)),
+                   dimnames=list(unique(plotd_24$host),
+                                 unique(plotd_24$training)))
+diffs_in_median <-  matrix(-100,nrow=length(unique(plotd_24$host)),
+                           ncol=length(unique(plotd_24$training)),
+                           dimnames=list(unique(plotd_24$host),
+                                         unique(plotd_24$training))) 
+stat2 <- "CJ"
+alt1 <- "less" #Alternative for Wilcoxon test, less means
+#test whether OSW has lower errors
+for (h1 in unique(plotd_24$host)){
+  for (t2 in unique(plotd_24$training)){
+    #if (h1=="Streptococcus" & t2=="0.25"){next}
+    wilcx_p2[h1,t2] <- try(as.numeric(wilcox.test(x = plotd_24$value[plotd_24$host==h1 &
+                                                                       plotd_24$training==t2 &
+                                                                       plotd_24$stat=="OSW"],
+                                                  y = plotd_24$value[plotd_24$host==h1 &
+                                                                       plotd_24$training==t2 &
+                                                                       plotd_24$stat == stat2],
+                                                  alternative = alt1)$p.value),
+                           TRUE)
+    diffs_in_median[h1,t2] <- - median(plotd_24$value[plotd_24$host==h1 &
+                                                        plotd_24$training==t2 &
+                                                        plotd_24$stat=="OSW"]) + 
+      median(plotd_24$value[plotd_24$host==h1 &
+                              plotd_24$training==t2 &
+                              plotd_24$stat == stat2])
+    cat("host",h1,", train",t2,":",wilcx_p2[h1,t2],"\n")
+  }}
+
+knitr::kable(wilcx_p2,digits = 3,format = "latex")
+
+f1 <- function(x){x/sum(x)}
+diffs_in_median |> sign() |> table() |> f1()
+sum(p.adjust(wilcx_p2,"holm")<0.05)/(nrow(wilcx_p2)*ncol(wilcx_p2))
