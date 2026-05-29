@@ -35,10 +35,10 @@ The software is organised as follows (all methods are referenced in [1] above).
         - internal_valid_from25set_orlitzkyestim.R: adds OSW
         - internal_valid_from25set_ugland.R: adds limited analysis for semi-log species accumulation curve extrapolation (see Supplementary text 2)
     - `internal_valid_fixedm.R`: prediction using FPG and OSW for fixed-size sub-samples for training and prediction sets        
-      * visualisation and summaries of internal validation results
-        - `plots_intval.R`
-        - `plots_intval_fixedm.R`
-        - `get_table_intval.R`
+  * visualisation and summaries of internal validation results
+    - `plots_intval.R`
+    - `plots_intval_fixedm.R`
+    - `get_table_intval.R`
  
   * Scripts to illustrate diversity and predictions.
     - `diversity.R`: Analysing species diversity using Hill numbers (Supplementary text 4)
