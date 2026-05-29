@@ -27,7 +27,7 @@ samples_1K <- which(nosamples_host>999)
 samples_1K <- samples_1K[-which(names(samples_1K)=="Unspecified")]
 
 #' Get sample sizes and number of present species
-#' We can always run ET/GT, we have at least 1K 
+#' run OSW
 library(tibble)
 obs_plus1K_may25 <- data.frame(cbind(phage_sampsize=nosamples_host[samples_1K],
                    species_sampsize=nospecies_host[samples_1K]))
@@ -37,7 +37,7 @@ pred1K <- function(host,m=1000){
   n1 <- samples_1K[host]
   speccounts<-getSpeciesCount(spec_byhost_l[[n1]])
   freq_table<-getFrequencyTable(speccounts)
-  unname(efron_thisted(freq_table = freq_table,
+  unname(SGT(freq_table = freq_table,
                 m = m))
 }
 

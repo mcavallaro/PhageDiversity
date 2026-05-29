@@ -1,6 +1,7 @@
 library(magrittr)
 library(dplyr)
-library(tidyverse)
+library(dbplyr)
+#library(tidyverse)
 library(ggplot2)
 library(ggrepel)
 # import functions for non-paramteric estimates
@@ -41,8 +42,7 @@ for (n1 in host_names ){
   cat(". n of isolates: ", m, " ", length(spec_byhost_l[[n1]][[1]]), " ", sum(speccounts))
   m = seq(1, m * 1.3)
 
-  temp1<-efron_thisted(freq_table, m, 
-                         max_terms = 10) + n_actual_species
+  temp1 <- SGT(freq_table, m) + n_actual_species
 
   make_est_m<-function(v){vm <- v
                           vm[1] <- max(0,v[1]) 
@@ -54,8 +54,8 @@ for (n1 in host_names ){
                           return(vm)}
 
   t1<-tibble(m = m,
-             ET = temp1,
-             "mod. ET" = make_est_m(temp1),
+             OSW = temp1,
+             "mod. OSW" = make_est_m(temp1),
              "host" = rep(n1, length(m)),
              n = length(spec_byhost_l[[n1]][[1]]))
   
@@ -68,7 +68,7 @@ for (n1 in host_names ){
   new_species_ET<-bind_rows(new_species_ET, t1)
 }
 
-data1<-new_species_ET[new_species_ET$estim. == 'mod. ET',]
+data1<-new_species_ET[new_species_ET$estim. == 'mod. OSW',]
 
 labels<-data1 %>% group_by(host) %>% slice_tail(n=1)
 
