@@ -128,11 +128,15 @@ loglm_specacc <- function(x,addpresent=FALSE){
   exp(lm1$coefficients[2]*log(x+t1)+lm1$coefficients[1])}
 #lm1$coefficients[2]*log(x+t1)+lm1$coefficients[1]}
 
+
+
 #' assess fit of log and log-log models for
 #' subsampled data
 pdf(paste0("lmfits_logmodels_",n1,".pdf"))
 plot(raref_c$steps,raref_c$subsamp_specc,
-     main=paste(n1,": fit semi-log to SAC"))
+     main=paste(n1,": fit semi-log and log-log to SAC"),
+     xlab="Number of samples",ylab="Number of species",
+     pch=4,cra=c(1,1),cex=0.5)
 curve(from=1,
       to=sum(speccounts),
       expr = loglm_specacc,
@@ -156,7 +160,7 @@ temp4 <- sloglm_specacc(m,
 #' Add reimplementation of Ugland's approach
 source("ugland_logmodel.R")
 temp5 <- fit_slog_spec(freq_table = freq_table,
-                       m=m)
+                       m=m,onlym = FALSE)
 
 make_est_m<-function(v){vm <- v
                           vm[1] <- max(0,v[1]) 
@@ -169,11 +173,11 @@ make_est_m<-function(v){vm <- v
 
   t1<-tibble(m = m,
              FPG = sum(freq_table) + temp2,
-             "cm-mod. OGT" = sum(freq_table) + make_est_m(temp1),
+             "cm-mod. OSW" = sum(freq_table) + make_est_m(temp1),
              "loglog model" = temp3, 
              "log(sample size) model" = temp4,
              "Ugland's semilog" = temp5,
-             "iNEXT extrapolation" = temp6,
+             "CJ" = temp6,
              "host" = rep(n1, length(m)),
              n = length(spec_byhost_l[[n1]][[1]]))
   
@@ -195,17 +199,10 @@ plt1 <- data1 |> ggplot() + geom_line(aes(x = m,y = value,
                    ) +
   labs(y="#present + #predicted species") 
 
-pdf('predict_newspec_OGTFPG_loglin_1plotpage.pdf') 
-for (i in 1:8){
-  print(plt1 + facet_wrap_paginate(facet=vars(host),
-                                   nrow=1,ncol=1,
-                                   scales="free",
-                                   page = i))
-}
-dev.off() 
+
     
 print(plt1 + facet_wrap(facet=vars(host),
                   nrow=3,ncol=3,
                   scales="free"))
-ggsave(filename = "predict_new_ogt_fpg_logl_nobt.pdf")
+ggsave(filename = "predict_new_logmodels_nobt.pdf")
 

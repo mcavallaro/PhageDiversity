@@ -17,7 +17,9 @@ spec_byhost <- fulltable |> select(Host,vOTU) |> nest_by(Host)
 spec_byhost_l <- as.list(spec_byhost$data)
 names(spec_byhost_l) <- spec_byhost$Host
 
-new_species_SGT <- tibble()
+new_species_3 <- tibble()
+new_species_all <- tibble()
+
 
 host_names<-c("Escherichia", "Klebsiella",
               "Mycobacterium", "Pseudomonas",
@@ -64,13 +66,23 @@ make_est_m<-function(v){vm <- v
              "CJ" = temp3, 
              "host" = rep(n1, length(m)),
              n = length(spec_byhost_l[[n1]][[1]]))
-  
+  #' to add Ugland's et al semi-log
+  source("ugland_logmodel.R")
+  temp5 <- fit_slog_spec(freq_table = freq_table,
+                         m=m,onlym = TRUE)
+  t2 <- bind_cols(t1,
+                  "Ugland semilog"= temp5)
 
   t1<-t1 |> pivot_longer(cols = c(-m,-host,-n),
                          names_to = "Estimator")   
   t1<-t1 |> mutate(m = as.integer(m))
   t1<-t1 |> mutate(estim. = factor(Estimator))
 
+  t2 <- t2 |> pivot_longer(cols = c(-m,-host,-n),
+                         names_to = "Estimator")   
+  t2 <- t2 |> mutate(m = as.integer(m))
+  t2 <- t2 |> mutate(estim. = factor(Estimator))
+  
 #' Add bootstrap values for parameters
   #Make boostrap for different m
   bt_mod <- function(est=SGT){
@@ -130,11 +142,12 @@ make_est_m<-function(v){vm <- v
   bt_est_qu3 <- bt_est_qu3 |> rename(m=m2)
   t1 <- inner_join(t1, bt_est_qu3, by = c("m", "estim."))
   #' add to all host genera df
-  new_species_SGT <- bind_rows(new_species_SGT,t1)
+  new_species_3 <- bind_rows(new_species_3,t1)
+  new_species_all <- bind_rows(new_species_all,t2) 
 }
 
-#' With bt
-data1 <- new_species_SGT
+#' With bt, 3 estimators
+data1 <- new_species_3
 data1 |> ggplot() + geom_line(aes(x = m,y = value,
                                   colour = estim.,
                                   linetype = estim.)) +
@@ -152,9 +165,9 @@ data1 |> ggplot() + geom_line(aes(x = m,y = value,
 
 ggsave(filename = "predict_new_3estim.pdf")
 
-#' Without bt
+#' Without bt, 3 estimators
 library(ggforce)
-data1 <- new_species_SGT
+data1 <- new_species_3
 plt1 <- data1 |> ggplot() + geom_line(aes(x = m,y = value,
                               colour = Estimator)) +
         geom_vline(aes(xintercept = n),
@@ -169,6 +182,23 @@ print(plt1 + facet_wrap(facet=vars(host),
   theme(axis.text.x = element_text(size = 8))
 
 ggsave(filename = "predict_new_3estim_nobt.pdf")
+
+#' w/o bt, adding Ugland et al. semi-log
+data1 <- new_species_all
+plt1 <- data1 |> ggplot() + geom_line(aes(x = m,y = value,
+                                          colour = Estimator)) +
+  geom_vline(aes(xintercept = n),
+             linetype = 2
+  ) +
+  #labs(y="#present + #predicted species") 
+  labs(y="#predicted species in additional sample")
+
+print(plt1 + facet_wrap(facet=vars(host),
+                        nrow=3,ncol=3,
+                        scales="free")) +
+  theme(axis.text.x = element_text(size = 8))
+
+ggsave(filename = "predict_new_3estimUgl_nobt.pdf")
 
 #' Quantify results
 for (n1 in host_names){
